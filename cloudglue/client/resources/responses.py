@@ -7,6 +7,9 @@ from cloudglue.sdk.models.create_response_request import CreateResponseRequest
 from cloudglue.sdk.models.create_response_request_input import CreateResponseRequestInput
 from cloudglue.sdk.models.entity_backed_knowledge_config import EntityBackedKnowledgeConfig
 from cloudglue.sdk.models.entity_collection_config import EntityCollectionConfig
+from cloudglue.sdk.models.knowledge_base_collections import KnowledgeBaseCollections
+from cloudglue.sdk.models.knowledge_base_default import KnowledgeBaseDefault
+from cloudglue.sdk.models.knowledge_base_files import KnowledgeBaseFiles
 from cloudglue.sdk.models.response_input_content import ResponseInputContent
 from cloudglue.sdk.models.response_input_message import ResponseInputMessage
 from cloudglue.sdk.models.response_knowledge_base import ResponseKnowledgeBase
@@ -112,7 +115,9 @@ class Responses:
     def create(
         self,
         input: Union[str, List[Dict[str, Any]]],
-        collections: List[str],
+        collections: Optional[List[str]] = None,
+        files: Optional[List[str]] = None,
+        use_default_index: bool = False,
         model: str = "nimbus-001",
         instructions: Optional[str] = None,
         temperature: Optional[float] = None,
@@ -122,13 +127,19 @@ class Responses:
         knowledge_base_type: Optional[str] = None,
         entity_backed_knowledge_config: Optional[Dict[str, Any]] = None,
         filter: Optional[Dict[str, Any]] = None,
+        tools: Optional[List[Dict[str, Any]]] = None,
     ):
         """Create a new response.
+
+        Exactly one of `collections`, `files`, or `use_default_index=True` must be provided
+        to specify the knowledge base source.
 
         Args:
             input: The input for the response. Can be a simple string (treated as user message)
                 or a list of message dicts with 'role' and 'content' keys.
             collections: List of collection IDs to search for relevant context.
+            files: List of file references to search (file UUIDs, cloudglue URIs, or URLs).
+            use_default_index: When True, search all default-indexed files for the account.
             model: The model to use for the response (default: 'nimbus-001').
             instructions: Optional system instructions to guide the model's behavior.
             temperature: Sampling temperature for the model (0-2, default: 0.7).
@@ -137,9 +148,13 @@ class Responses:
             stream: Set to True to stream the response via SSE. Mutually exclusive with background.
             knowledge_base_type: The type of knowledge base interaction pattern.
                 'general_question_answering' (default) or 'entity_backed_knowledge'.
+                Only applies when using collections knowledge base.
             entity_backed_knowledge_config: Configuration for entity-backed knowledge.
                 Required when knowledge_base_type is 'entity_backed_knowledge'.
+                Only applies when using collections knowledge base.
             filter: Optional filter to narrow down the search within collections.
+                Only applies when using collections knowledge base.
+            tools: Optional list of tool definitions for function calling.
 
         Returns:
             The Response object, or a generator of SSE event dicts when stream=True.
@@ -148,18 +163,31 @@ class Responses:
             CloudglueError: If there is an error creating the response.
         """
         try:
-            kb_kwargs = {"collections": collections}
-            if knowledge_base_type is not None:
-                kb_kwargs["type"] = knowledge_base_type
-            if filter is not None:
-                kb_kwargs["filter"] = SearchFilter.from_dict(filter) if isinstance(filter, dict) else filter
-            if entity_backed_knowledge_config is not None:
-                kb_kwargs["entity_backed_knowledge_config"] = (
-                    EntityBackedKnowledgeConfig.from_dict(entity_backed_knowledge_config)
-                    if isinstance(entity_backed_knowledge_config, dict)
-                    else entity_backed_knowledge_config
+            sources = sum([bool(collections), bool(files), use_default_index])
+            if sources != 1:
+                raise ValueError(
+                    "Exactly one of 'collections', 'files', or 'use_default_index=True' must be provided"
                 )
-            knowledge_base = ResponseKnowledgeBase(**kb_kwargs)
+
+            if collections:
+                kb_kwargs = {"collections": collections}
+                if knowledge_base_type is not None:
+                    kb_kwargs["type"] = knowledge_base_type
+                if filter is not None:
+                    kb_kwargs["filter"] = SearchFilter.from_dict(filter) if isinstance(filter, dict) else filter
+                if entity_backed_knowledge_config is not None:
+                    kb_kwargs["entity_backed_knowledge_config"] = (
+                        EntityBackedKnowledgeConfig.from_dict(entity_backed_knowledge_config)
+                        if isinstance(entity_backed_knowledge_config, dict)
+                        else entity_backed_knowledge_config
+                    )
+                kb_inner = KnowledgeBaseCollections(**kb_kwargs)
+            elif files:
+                kb_inner = KnowledgeBaseFiles(source="files", files=files)
+            else:
+                kb_inner = KnowledgeBaseDefault(source="default")
+
+            knowledge_base = ResponseKnowledgeBase(kb_inner)
 
             request = CreateResponseRequest(
                 input=_normalize_input(input),
@@ -170,6 +198,7 @@ class Responses:
                 background=background,
                 include=include,
                 stream=stream,
+                tools=tools,
             )
 
             if stream:

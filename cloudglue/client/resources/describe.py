@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Optional, Union
 from cloudglue.sdk.models.new_describe import NewDescribe
 from cloudglue.sdk.models.segmentation_config import SegmentationConfig
 from cloudglue.sdk.models.thumbnails_config import ThumbnailsConfig
+from cloudglue.sdk.models.update_describe_request import UpdateDescribeRequest
 from cloudglue.sdk.rest import ApiException
 
 from cloudglue.client.resources.base import CloudglueError
@@ -198,6 +199,40 @@ class Describe:
         try:
             response = self.api.delete_describe(job_id=job_id)
             return response
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def update(
+        self,
+        job_id: str,
+        use_in_default_index: bool,
+    ):
+        """Update a describe job.
+
+        Toggle the use_in_default_index flag on an existing describe job.
+        Enabling this makes the file searchable by default in the deep search
+        and response APIs.
+
+        Args:
+            job_id: The unique identifier of the description job.
+            use_in_default_index: When True, the video's search documents will be
+                added to the account's default index. When False, existing default
+                index search documents are removed.
+
+        Returns:
+            The updated Describe job object.
+
+        Raises:
+            CloudglueError: If there is an error updating the describe job.
+        """
+        try:
+            request = UpdateDescribeRequest(use_in_default_index=use_in_default_index)
+            return self.api.update_describe(
+                job_id=job_id,
+                update_describe_request=request,
+            )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
         except Exception as e:
