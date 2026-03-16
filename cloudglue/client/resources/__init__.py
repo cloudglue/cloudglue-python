@@ -20,6 +20,7 @@ from cloudglue.client.resources.file_segments import FileSegments
 from cloudglue.client.resources.responses import Responses
 from cloudglue.client.resources.share import Share
 from cloudglue.client.resources.data_connectors import DataConnectors
+from cloudglue.client.resources.deep_search import DeepSearch
 
 __all__ = [
     "CloudglueError",
@@ -42,5 +43,6 @@ __all__ = [
     "Responses",
     "Share",
     "DataConnectors",
+    "DeepSearch",
 ]
 

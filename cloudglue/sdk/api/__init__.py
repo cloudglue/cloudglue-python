@@ -4,6 +4,7 @@
 from cloudglue.sdk.api.chat_api import ChatApi
 from cloudglue.sdk.api.collections_api import CollectionsApi
 from cloudglue.sdk.api.data_connectors_api import DataConnectorsApi
+from cloudglue.sdk.api.deep_search_api import DeepSearchApi
 from cloudglue.sdk.api.describe_api import DescribeApi
 from cloudglue.sdk.api.extract_api import ExtractApi
 from cloudglue.sdk.api.face_detection_api import FaceDetectionApi
