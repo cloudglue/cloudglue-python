@@ -158,8 +158,7 @@ class Describe:
             status: Filter description jobs by status.
             created_before: Filter description jobs created before a specific date (YYYY-MM-DD format), in UTC timezone.
             created_after: Filter description jobs created after a specific date (YYYY-MM-DD format), in UTC timezone.
-            response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
-                'speech_vtt', 'speech_markdown', or 'speech_text'. Defaults to 'json'.
+            response_format: The format of the response, one of 'json' or 'markdown' (json by default)
             url: Filter description jobs by the input URL used for description.
             include_data: Include the data in the response. If false, the response will only include
                 the job information and not the data to minimize the response size.
