@@ -102,7 +102,10 @@ class Describe:
 
         Args:
             job_id: The unique identifier of the description job.
-            response_format: The format of the response, one of 'json' or 'markdown' (json by default)
+            response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
+                'speech_vtt', 'speech_markdown', or 'speech_text'. Use speech_srt or speech_vtt for
+                subtitle formats, speech_markdown for a diarized transcript, or speech_text for plain
+                timestamped text. Defaults to 'json'.
             start_time_seconds: The start time in seconds to filter the media descriptions
             end_time_seconds: The end time in seconds to filter the media descriptions
             modalities: Filter results by modality types (e.g., ['speech', 'visual_scene_description'])
@@ -155,7 +158,8 @@ class Describe:
             status: Filter description jobs by status.
             created_before: Filter description jobs created before a specific date (YYYY-MM-DD format), in UTC timezone.
             created_after: Filter description jobs created after a specific date (YYYY-MM-DD format), in UTC timezone.
-            response_format: The format of the response, one of 'json' or 'markdown' (json by default)
+            response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
+                'speech_vtt', 'speech_markdown', or 'speech_text'. Defaults to 'json'.
             url: Filter description jobs by the input URL used for description.
             include_data: Include the data in the response. If false, the response will only include
                 the job information and not the data to minimize the response size.
@@ -272,7 +276,10 @@ class Describe:
             segmentation_id: Segmentation job id to use. Cannot be provided together with segmentation_config.
             segmentation_config: Configuration for video segmentation. Cannot be provided together with segmentation_id.
             thumbnails_config: Optional configuration for segment thumbnails
-            response_format: The format of the response, one of 'json' or 'markdown' (json by default)
+            response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
+                'speech_vtt', 'speech_markdown', or 'speech_text'. Use speech_srt or speech_vtt for
+                subtitle formats, speech_markdown for a diarized transcript, or speech_text for plain
+                timestamped text. Defaults to 'json'.
             modalities: Filter results by modality types (e.g., ['speech', 'visual_scene_description'])
             include_thumbnails: When true, include thumbnail_url on the response and segment_summary entries
             include_word_timestamps: When true, include word-level timestamps on speech entries. Not available for YouTube sources. Only applies when response_format=json.
