@@ -45,6 +45,9 @@ class DataConnectors:
         path: Optional[str] = None,
         bucket: Optional[str] = None,
         prefix: Optional[str] = None,
+        title_search: Optional[str] = None,
+        team: Optional[str] = None,
+        meeting_type: Optional[str] = None,
     ):
         """Browse files available in a connected data source.
 
@@ -55,12 +58,15 @@ class DataConnectors:
             connector_id: The ID of the data connector.
             limit: Maximum number of files to return (1-100, default 20).
             page_token: Opaque cursor for pagination from a previous response.
-            var_from: Start date for filtering (YYYY-MM-DD). Zoom connectors only.
-            to: End date for filtering (YYYY-MM-DD). Zoom connectors only.
+            var_from: Start date for filtering (YYYY-MM-DD). Zoom and Grain connectors only.
+            to: End date for filtering (YYYY-MM-DD). Zoom and Grain connectors only.
             folder_id: Google Drive folder ID. Google Drive connectors only.
             path: Dropbox folder path (default: root). Dropbox connectors only.
             bucket: Bucket name. Required for S3 and GCS connectors.
             prefix: Key prefix filter. S3 and GCS connectors only.
+            title_search: Title search filter. Grain connectors only.
+            team: Team filter. Grain connectors only.
+            meeting_type: Meeting type filter. Grain connectors only.
 
         Returns:
             DataConnectorFileList object.
@@ -79,6 +85,9 @@ class DataConnectors:
                 path=path,
                 bucket=bucket,
                 prefix=prefix,
+                title_search=title_search,
+                team=team,
+                meeting_type=meeting_type,
             )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
