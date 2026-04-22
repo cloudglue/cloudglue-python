@@ -56,17 +56,17 @@ class DataConnectors:
 
         Args:
             connector_id: The ID of the data connector.
-            limit: Maximum number of files to return (1-100, default 20).
-            page_token: Opaque cursor for pagination from a previous response.
-            var_from: Start date for filtering (YYYY-MM-DD). Zoom and Grain connectors only.
-            to: End date for filtering (YYYY-MM-DD). Zoom and Grain connectors only.
-            folder_id: Google Drive folder ID. Google Drive connectors only.
-            path: Dropbox folder path (default: root). Dropbox connectors only.
+            limit: Maximum number of files to return (1-100).
+            page_token: Opaque cursor for pagination. Use the `next_page_token` from a previous response.
+            var_from: Start date for filtering (YYYY-MM-DD). Applies to Zoom and Grain connectors only.
+            to: End date for filtering (YYYY-MM-DD). Applies to Zoom and Grain connectors only.
+            folder_id: Google Drive folder ID to list contents of. Applies to Google Drive connectors only.
+            path: Dropbox folder path to list contents of (default: root). Applies to Dropbox connectors only.
             bucket: Bucket name. Required for S3 and GCS connectors.
-            prefix: Key prefix filter. S3 and GCS connectors only.
-            title_search: Title search filter. Grain connectors only.
-            team: Team filter. Grain connectors only.
-            meeting_type: Meeting type filter. Grain connectors only.
+            prefix: Key prefix filter. Applies to S3 and GCS connectors only.
+            title_search: Title search filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
+            team: Team filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
+            meeting_type: Meeting type filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
 
         Returns:
             DataConnectorFileList object.
