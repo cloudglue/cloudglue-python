@@ -236,10 +236,18 @@ class Segmentations:
 
         Args:
             strategy: Narrative segmentation strategy:
-                - 'balanced' (default): Balanced analysis using multiple modalities.
-                  Supports YouTube URLs and audio files.
-                - 'comprehensive': Deep VLM analysis of logical segments.
+
+                - ``comprehensive``: Uses a VLM to deeply analyze logical segments of video.
                   Only available for video files (not YouTube or audio).
+                - ``balanced`` (default): Balanced analysis approach using multiple modalities.
+                  Supports YouTube URLs and audio files.
+                - ``transcript``: Cheap and fast speech-transcript-based segmentation. Requires
+                  a transcript; returns an error for silent or visual-only content (use
+                  ``balanced`` instead, or ``comprehensive`` for non-YouTube/non-audio video
+                  files).
+
+                YouTube URLs and audio files only support ``balanced`` and ``transcript``;
+                ``comprehensive`` will be rejected with an error.
             prompt: Optional custom prompt to guide the narrative segmentation analysis.
                 This will be incorporated into the main segmentation prompt as additional guidance.
             number_of_chapters: Optional target number of chapters to generate.
