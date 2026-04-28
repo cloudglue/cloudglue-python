@@ -62,13 +62,22 @@ class Segments:
         Args:
             prompt: Optional custom prompt to guide the narrative segmentation analysis.
                 This will be incorporated into the main segmentation prompt as additional guidance.
-            strategy: Optional narrative segmentation strategy. Options:
-                - 'balanced': Uses multimodal describe job for comprehensive analysis.
-                  Default strategy, recommended for most videos. Supports YouTube URLs.
-                - 'comprehensive': Uses a VLM to deeply analyze logical segments of video.
-                  Only available for non-YouTube videos.
-                Note: YouTube URLs automatically use the 'balanced' strategy regardless of
-                the strategy field value. The 'comprehensive' strategy is not supported for YouTube URLs.
+            strategy: Optional narrative segmentation strategy. API defaults depend on the
+                input (comprehensive for non-YouTube/non-audio files; balanced for YouTube
+                videos and audio files). Options:
+
+                - ``comprehensive`` (default for non-YouTube/non-audio files): Uses a VLM to
+                  deeply analyze logical segments of video. Only available for video files
+                  (not YouTube or audio).
+                - ``balanced`` (default for YouTube videos and audio files): Balanced analysis
+                  approach using multiple modalities. Supports YouTube URLs and audio files.
+                - ``transcript``: Cheap and fast speech-transcript-based segmentation. Requires
+                  a transcript and returns an error when none is available — use ``balanced``
+                  for silent or visual-only content (or ``comprehensive`` for non-YouTube/non-audio
+                  video files).
+
+                YouTube URLs and audio files only accept ``balanced`` and ``transcript``;
+                ``comprehensive`` will be rejected with an error.
             number_of_chapters: Optional target number of chapters to generate.
                 If provided, the AI will attempt to generate exactly this number of chapters.
                 Must be >= 1 if provided.
