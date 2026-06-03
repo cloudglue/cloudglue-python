@@ -3,6 +3,9 @@
 from typing import Optional
 
 from cloudglue.sdk.rest import ApiException
+from cloudglue.sdk.models.sync_data_connector_file_request import (
+    SyncDataConnectorFileRequest,
+)
 
 from cloudglue.client.resources.base import CloudglueError
 
@@ -88,6 +91,63 @@ class DataConnectors:
                 title_search=title_search,
                 team=team,
                 meeting_type=meeting_type,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def get_source_metadata(self, connector_id: str, url: str):
+        """Look up source metadata for a connector URI.
+
+        Returns provider-specific metadata (e.g. Grain recording details) for a
+        single file in a connected data source, without importing it.
+
+        Note: currently only supported for Grain connectors. Other connector
+        types raise a CloudglueError with status 501 (Not Implemented).
+
+        Args:
+            connector_id: The ID of the data connector.
+            url: Connector URI to look up. Must match the connector's type.
+
+        Returns:
+            SourceMetadataResponse object.
+
+        Raises:
+            CloudglueError: If there is an error fetching source metadata
+                (including 501 for non-Grain connectors).
+        """
+        try:
+            return self.api.get_data_connector_source_metadata(
+                id=connector_id,
+                url=url,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def sync_file(self, connector_id: str, url: str):
+        """Sync a file from a connected data source into Cloudglue.
+
+        Imports the file at the given connector URI, returning the resulting
+        Cloudglue file (creating it if it does not already exist).
+
+        Args:
+            connector_id: The ID of the data connector.
+            url: Connector URI to sync. Must match the connector's type.
+
+        Returns:
+            File object.
+
+        Raises:
+            CloudglueError: If there is an error syncing the file.
+        """
+        try:
+            request = SyncDataConnectorFileRequest(url=url)
+            return self.api.sync_data_connector_file(
+                id=connector_id,
+                sync_data_connector_file_request=request,
             )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
