@@ -103,6 +103,9 @@ class DataConnectors:
         Returns provider-specific metadata (e.g. Grain recording details) for a
         single file in a connected data source, without importing it.
 
+        Note: currently only supported for Grain connectors. Other connector
+        types raise a CloudglueError with status 501 (Not Implemented).
+
         Args:
             connector_id: The ID of the data connector.
             url: Connector URI to look up. Must match the connector's type.
@@ -111,7 +114,8 @@ class DataConnectors:
             SourceMetadataResponse object.
 
         Raises:
-            CloudglueError: If there is an error fetching source metadata.
+            CloudglueError: If there is an error fetching source metadata
+                (including 501 for non-Grain connectors).
         """
         try:
             return self.api.get_data_connector_source_metadata(
