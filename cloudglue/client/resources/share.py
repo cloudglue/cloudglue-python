@@ -23,8 +23,9 @@ class Share:
         title: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        visibility: Optional[str] = None,
     ):
-        """Create a publicly available shareable asset.
+        """Create a shareable asset.
 
         Args:
             file_id: The ID of the file to create a shareable asset for.
@@ -32,6 +33,11 @@ class Share:
             title: Optional title for the shareable asset.
             description: Optional description for the shareable asset.
             metadata: Optional metadata for the shareable asset.
+            visibility: Optional visibility, either 'public' (default) or 'private'.
+                'public' assets are viewable by anyone with the link; 'private' assets are
+                restricted to members of the owning account and stream via a signed,
+                token-gated playback url. Cannot be changed after creation. A file (or
+                file segment) can have at most one active share per visibility.
 
         Returns:
             ShareableAsset object with the share_url.
@@ -46,6 +52,7 @@ class Share:
                 title=title,
                 description=description,
                 metadata=metadata,
+                visibility=visibility,
             )
             return self.api.create_shareable_asset(create_shareable_asset_request=request)
         except ApiException as e:
@@ -80,6 +87,7 @@ class Share:
         offset: Optional[int] = None,
         created_before: Optional[str] = None,
         created_after: Optional[str] = None,
+        visibility: Optional[str] = None,
     ):
         """List shareable assets with optional filtering.
 
@@ -90,6 +98,8 @@ class Share:
             offset: Number of assets to skip.
             created_before: Filter by creation date (YYYY-MM-DD format, UTC).
             created_after: Filter by creation date (YYYY-MM-DD format, UTC).
+            visibility: Filter by visibility, either 'public' or 'private'. A file can
+                have one public and one private share.
 
         Returns:
             ShareableAssetListResponse object.
@@ -105,6 +115,7 @@ class Share:
                 offset=offset,
                 created_before=created_before,
                 created_after=created_after,
+                visibility=visibility,
             )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
