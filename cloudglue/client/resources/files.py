@@ -18,6 +18,7 @@ from cloudglue.sdk.models.create_file_segmentation_request import CreateFileSegm
 from cloudglue.sdk.models.frame_extraction_uniform_config import FrameExtractionUniformConfig
 from cloudglue.sdk.models.frame_extraction_thumbnails_config import FrameExtractionThumbnailsConfig
 from cloudglue.sdk.models.create_file_frame_extraction_request import CreateFileFrameExtractionRequest
+from cloudglue.sdk.models.sync_file_from_url_request import SyncFileFromUrlRequest
 from cloudglue.sdk.rest import ApiException
 
 from cloudglue.client.resources.base import CloudglueError
@@ -235,6 +236,87 @@ class Files:
                 metadata=metadata,
                 enable_segment_thumbnails=enable_segment_thumbnails
             )
+
+            # If not waiting for completion, return immediately
+            if not wait_until_finish:
+                return response
+
+            # Otherwise poll until completion or timeout
+            file_id = response.id
+            elapsed = 0
+            terminal_states = ["ready", "completed", "failed", "not_applicable"]
+
+            while elapsed < timeout:
+                status = self.get(file_id=file_id)
+
+                if status.status in terminal_states:
+                    return status
+
+                time.sleep(poll_interval)
+                elapsed += poll_interval
+
+            raise TimeoutError(
+                f"File processing did not complete within {timeout} seconds"
+            )
+
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def sync_from_url(
+        self,
+        url: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        enable_segment_thumbnails: Optional[bool] = None,
+        wait_until_finish: bool = False,
+        poll_interval: int = 5,
+        timeout: int = 600,
+    ):
+        """Materialize a publicly accessible URL into a Cloudglue file.
+
+        Syncs the media at the given URL without requiring a data connector or
+        a collection. Idempotent: syncing the same URL returns the existing
+        file.
+
+        Accepted URL forms:
+            - Direct http(s) video/audio file URLs (e.g. `.mp4`)
+            - Public Dropbox share links (`dropbox.com/scl/fi/...`, `/s/...`)
+            - TikTok video URLs (consumes scrape credits)
+            - Loom share URLs (`https://www.loom.com/share/<id>`)
+
+        Not supported here: YouTube URLs (collection-only — use
+        `collections.add_media`) and connector-native URLs (`s3://`, `gs://`,
+        `gdrive://`, Zoom/Grain links, ... — use `data_connectors.sync_file`).
+
+        Args:
+            url: Publicly accessible URL to sync.
+            metadata: Optional user-provided metadata about the file. Ignored
+                if the URL was already synced (the existing file is returned
+                unchanged).
+            enable_segment_thumbnails: Whether to generate per-segment
+                thumbnails for the file. Defaults to True server-side,
+                matching file upload.
+            wait_until_finish: Whether to wait for the file processing to complete.
+            poll_interval: How often to check the file status (in seconds) if waiting.
+            timeout: Maximum time to wait for processing (in seconds) if waiting.
+
+        Returns:
+            The synced file object. If wait_until_finish is True, waits for
+            processing to complete and returns the final file state.
+
+        Raises:
+            CloudglueError: If there is an error syncing or processing the file.
+        """
+        try:
+            request_kwargs: Dict[str, Any] = {"url": url}
+            if metadata is not None:
+                request_kwargs["metadata"] = metadata
+            if enable_segment_thumbnails is not None:
+                request_kwargs["enable_segment_thumbnails"] = enable_segment_thumbnails
+            request = SyncFileFromUrlRequest(**request_kwargs)
+
+            response = self.api.sync_file_from_url(sync_file_from_url_request=request)
 
             # If not waiting for completion, return immediately
             if not wait_until_finish:
