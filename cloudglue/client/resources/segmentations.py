@@ -127,7 +127,7 @@ class Segmentations:
         Args:
             detector: The detector strategy ('adaptive' for dynamic footage, 'content' for controlled footage)
             threshold: Detection sensitivity threshold (lower values create more segments)
-            min_seconds: The minimum length of a shot in seconds (1-600)
+            min_seconds: The minimum length of a shot in seconds (0.6-600)
             max_seconds: The maximum length of a shot in seconds (1-600)
             start_time_seconds: Optional start time of the video in seconds to start segmenting from
             end_time_seconds: Optional end time of the video in seconds to stop segmenting at
