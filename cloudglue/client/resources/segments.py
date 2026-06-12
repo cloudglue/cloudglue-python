@@ -27,8 +27,8 @@ class Segments:
     @staticmethod
     def create_shot_config(
         detector: str = "adaptive",
-        max_duration_seconds: int = 300,
-        min_duration_seconds: int = 1,
+        max_duration_seconds: Union[int, float] = 300,
+        min_duration_seconds: Union[int, float] = 0.6,
         fill_gaps: Optional[bool] = None,
     ) -> ShotConfig:
         """Create a shot-based segmentation configuration.
@@ -36,7 +36,7 @@ class Segments:
         Args:
             detector: Detection algorithm ('adaptive' or 'content')
             max_duration_seconds: Maximum duration for each segment in seconds (1-600)
-            min_duration_seconds: Minimum duration for each segment in seconds (1-600)
+            min_duration_seconds: Minimum duration for each segment in seconds (0.6-600)
             fill_gaps: When true, gaps between detected shots are filled. Defaults to true.
 
         Returns:
