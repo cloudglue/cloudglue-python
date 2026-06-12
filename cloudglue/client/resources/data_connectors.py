@@ -131,17 +131,40 @@ class DataConnectors:
         """Sync a file from a connected data source into Cloudglue.
 
         Imports the file at the given connector URI, returning the resulting
-        Cloudglue file (creating it if it does not already exist).
+        Cloudglue file (creating it if it does not already exist). Idempotent:
+        syncing the same URI returns the existing file.
+
+        Besides the connector URIs emitted by `list_files()` (`s3://`,
+        `gs://`, `gdrive://file/<id>`, `dropbox://<path>`, `zoom://`,
+        `grain://recording/<id>`, ...), the server resolves these share links
+        via the connector's OAuth:
+            - Google Drive share links (`drive.google.com/file/d/<id>`,
+              `/open?id=<id>`)
+            - Dropbox file share links (`dropbox.com/scl/fi/...`, `/s/...` —
+              works for login-gated files; folder links return 400)
+            - Zoom links (`https://*.zoom.us/{j|s|recording/detail|rec/share}`).
+              `rec/share` links resolve best-effort: Zoom often mints a new
+              share token each time a link is copied, so fresh links may 404 —
+              the reliable form is the recording-detail link
+              (`zoom.us/recording/detail?meeting_id=<uuid>`).
+
+        Plain http(s), TikTok, and Loom URLs are not connector-syncable —
+        ingest those via `files.sync_from_url` instead. YouTube URLs can only
+        be added to a collection (`collections.add_media`).
 
         Args:
             connector_id: The ID of the data connector.
-            url: Connector URI to sync. Must match the connector's type.
+            url: Connector URI or supported share link to sync. Must match
+                the connector's type.
 
         Returns:
             File object.
 
         Raises:
-            CloudglueError: If there is an error syncing the file.
+            CloudglueError: If there is an error syncing the file (e.g. 400
+                for folder links or type mismatches, 403 for inaccessible
+                share links, 404 if not found at the source, 429 if the
+                external service rate-limited the request).
         """
         try:
             request = SyncDataConnectorFileRequest(url=url)

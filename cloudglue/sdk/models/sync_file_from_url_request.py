@@ -17,29 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
-from cloudglue.sdk.models.segmentation_list_item import SegmentationListItem
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SegmentationList(BaseModel):
+class SyncFileFromUrlRequest(BaseModel):
     """
-    SegmentationList
+    SyncFileFromUrlRequest
     """ # noqa: E501
-    object: StrictStr = Field(description="Object type, always 'list'")
-    data: List[SegmentationListItem] = Field(description="Array of segmentation objects")
-    total: StrictInt = Field(description="Total number of segmentations matching the query")
-    limit: StrictInt = Field(description="Number of items returned in this response")
-    offset: StrictInt = Field(description="Offset from the start of the list")
-    __properties: ClassVar[List[str]] = ["object", "data", "total", "limit", "offset"]
-
-    @field_validator('object')
-    def object_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['list']):
-            raise ValueError("must be one of enum values ('list')")
-        return value
+    url: StrictStr = Field(description="Publicly accessible URL to sync. Accepted forms — direct http(s) file URL: `https://example.com/video.mp4` · Dropbox share link: `https://www.dropbox.com/scl/fi/...` or `https://www.dropbox.com/s/...` · TikTok: `https://www.tiktok.com/@user/video/<id>` (and `vm.tiktok.com`/`vt.tiktok.com` short links) · Loom: `https://www.loom.com/share/<id>`.")
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata to associate with the file. Ignored if the URL was already synced (the existing file is returned unchanged).")
+    enable_segment_thumbnails: Optional[StrictBool] = Field(default=True, description="Whether to generate per-segment thumbnails for the file. Defaults to true, matching file upload.")
+    __properties: ClassVar[List[str]] = ["url", "metadata", "enable_segment_thumbnails"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -59,7 +49,7 @@ class SegmentationList(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SegmentationList from a JSON string"""
+        """Create an instance of SyncFileFromUrlRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,18 +70,11 @@ class SegmentationList(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
-        _items = []
-        if self.data:
-            for _item_data in self.data:
-                if _item_data:
-                    _items.append(_item_data.to_dict())
-            _dict['data'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SegmentationList from a dict"""
+        """Create an instance of SyncFileFromUrlRequest from a dict"""
         if obj is None:
             return None
 
@@ -99,11 +82,9 @@ class SegmentationList(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "object": obj.get("object"),
-            "data": [SegmentationListItem.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
-            "total": obj.get("total"),
-            "limit": obj.get("limit"),
-            "offset": obj.get("offset")
+            "url": obj.get("url"),
+            "metadata": obj.get("metadata"),
+            "enable_segment_thumbnails": obj.get("enable_segment_thumbnails") if obj.get("enable_segment_thumbnails") is not None else True
         })
         return _obj
 
