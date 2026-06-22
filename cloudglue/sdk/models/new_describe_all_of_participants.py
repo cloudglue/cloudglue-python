@@ -17,20 +17,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from cloudglue.sdk.models.collection_face_detection_config_frame_extraction_config import CollectionFaceDetectionConfigFrameExtractionConfig
-from cloudglue.sdk.models.collection_face_detection_config_thumbnails_config import CollectionFaceDetectionConfigThumbnailsConfig
 from typing import Optional, Set
 from typing_extensions import Self
 
-class NewCollectionFaceDetectionConfig(BaseModel):
+class NewDescribeAllOfParticipants(BaseModel):
     """
-    🎯 **Use ONLY when collection_type = 'face-analysis'**  Configuration for face detection in videos. Optional - if not provided, default values will be used. This config will be ignored for other collection types.
+    NewDescribeAllOfParticipants
     """ # noqa: E501
-    frame_extraction_config: Optional[CollectionFaceDetectionConfigFrameExtractionConfig] = None
-    thumbnails_config: Optional[CollectionFaceDetectionConfigThumbnailsConfig] = None
-    __properties: ClassVar[List[str]] = ["frame_extraction_config", "thumbnails_config"]
+    name: StrictStr = Field(description="Participant display name, e.g. \"Alice Smith\".")
+    scope: Optional[StrictStr] = Field(default=None, description="Optional free-form context for the participant, e.g. a role, affiliation, or \"internal\"/\"external\". Used only as naming context.")
+    __properties: ClassVar[List[str]] = ["name", "scope"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +48,7 @@ class NewCollectionFaceDetectionConfig(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of NewCollectionFaceDetectionConfig from a JSON string"""
+        """Create an instance of NewDescribeAllOfParticipants from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,17 +69,11 @@ class NewCollectionFaceDetectionConfig(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of frame_extraction_config
-        if self.frame_extraction_config:
-            _dict['frame_extraction_config'] = self.frame_extraction_config.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of thumbnails_config
-        if self.thumbnails_config:
-            _dict['thumbnails_config'] = self.thumbnails_config.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of NewCollectionFaceDetectionConfig from a dict"""
+        """Create an instance of NewDescribeAllOfParticipants from a dict"""
         if obj is None:
             return None
 
@@ -89,8 +81,8 @@ class NewCollectionFaceDetectionConfig(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "frame_extraction_config": CollectionFaceDetectionConfigFrameExtractionConfig.from_dict(obj["frame_extraction_config"]) if obj.get("frame_extraction_config") is not None else None,
-            "thumbnails_config": CollectionFaceDetectionConfigThumbnailsConfig.from_dict(obj["thumbnails_config"]) if obj.get("thumbnails_config") is not None else None
+            "name": obj.get("name"),
+            "scope": obj.get("scope")
         })
         return _obj
 

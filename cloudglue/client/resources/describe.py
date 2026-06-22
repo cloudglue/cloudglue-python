@@ -4,6 +4,9 @@ import time
 from typing import Dict, Any, List, Optional, Union
 
 from cloudglue.sdk.models.new_describe import NewDescribe
+from cloudglue.sdk.models.new_describe_all_of_participants import (
+    NewDescribeAllOfParticipants,
+)
 from cloudglue.sdk.models.segmentation_config import SegmentationConfig
 from cloudglue.sdk.models.thumbnails_config import ThumbnailsConfig
 from cloudglue.sdk.models.update_describe_request import UpdateDescribeRequest
@@ -30,6 +33,7 @@ class Describe:
         segmentation_id: Optional[str] = None,
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
+        participants: Optional[List[Union[Dict[str, Any], NewDescribeAllOfParticipants]]] = None,
     ):
         """Create a new media description job for a video.
 
@@ -43,6 +47,12 @@ class Describe:
             segmentation_id: Segmentation job id to use. Cannot be provided together with segmentation_config.
             segmentation_config: Configuration for video segmentation. Cannot be provided together with segmentation_id.
             thumbnails_config: Optional configuration for segment thumbnails
+            participants: Known participants on the recording, each a dict ``{"name": str, "scope": str}``
+                (or a ``NewDescribeAllOfParticipants``). When provided, speaker naming is constrained to
+                these people: transcript speaker labels will only use one of these names (or a generic
+                "Speaker N"), never an invented name. Intended for uploaded files, which (unlike
+                data-connector files such as Grain) carry no participant metadata; for connector files
+                this is populated automatically and need not be supplied.
 
         Returns:
             The typed Describe job object with job_id and status.
@@ -66,6 +76,16 @@ class Describe:
                 else:
                     thumbnails_config_obj = thumbnails_config
 
+            # Handle participants parameter (accept dicts or model objects)
+            participants_obj = None
+            if participants is not None:
+                participants_obj = [
+                    NewDescribeAllOfParticipants.from_dict(p)
+                    if isinstance(p, dict)
+                    else p
+                    for p in participants
+                ]
+
             request = NewDescribe(
                 url=url,
                 enable_summary=enable_summary,
@@ -76,6 +96,7 @@ class Describe:
                 segmentation_id=segmentation_id,
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config_obj,
+                participants=participants_obj,
             )
 
             # Use the regular SDK method to create the job
@@ -254,6 +275,7 @@ class Describe:
         segmentation_id: Optional[str] = None,
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
+        participants: Optional[List[Union[Dict[str, Any], NewDescribeAllOfParticipants]]] = None,
         response_format: Optional[str] = None,
         modalities: Optional[List[str]] = None,
         include_thumbnails: Optional[bool] = None,
@@ -275,6 +297,8 @@ class Describe:
             segmentation_id: Segmentation job id to use. Cannot be provided together with segmentation_config.
             segmentation_config: Configuration for video segmentation. Cannot be provided together with segmentation_id.
             thumbnails_config: Optional configuration for segment thumbnails
+            participants: Known participants on the recording (each ``{"name": str, "scope": str}``); when
+                provided, speaker naming is constrained to these people. Useful for uploaded files.
             response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
                 'speech_vtt', 'speech_markdown', or 'speech_text'. Use speech_srt or speech_vtt for
                 subtitle formats, speech_markdown for a diarized transcript, or speech_text for plain
@@ -303,6 +327,7 @@ class Describe:
                 segmentation_id=segmentation_id,
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config,
+                participants=participants,
             )
 
             job_id = job.job_id
