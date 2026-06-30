@@ -36,7 +36,9 @@ class Extract:
         """Create a new extraction job.
 
         Args:
-            url: The URL of the video to extract data from. Can be a YouTube URL or a cloudglue file URI.
+            url: The URL of the media to extract data from. Can be a YouTube URL,
+                a cloudglue file URI (video, audio, or image), or a public direct
+                image URL (JPEG/PNG/WebP).
             prompt: A natural language description of what to extract. Required if schema is not provided.
             schema: A JSON schema defining the structure of the data to extract. Required if prompt is not provided.
             enable_video_level_entities: Whether to extract entities at the video level
@@ -204,7 +206,9 @@ class Extract:
         """Create an extraction job and wait for it to complete.
 
         Args:
-            url: The URL of the video to extract data from. Can be a YouTube URL or a cloudglue file URI.
+            url: The URL of the media to extract data from. Can be a YouTube URL,
+                a cloudglue file URI (video, audio, or image), or a public direct
+                image URL (JPEG/PNG/WebP).
             prompt: A natural language description of what to extract. Required if schema is not provided.
             schema: A JSON schema defining the structure of the data to extract. Required if prompt is not provided.
             enable_video_level_entities: Whether to extract entities at the video level

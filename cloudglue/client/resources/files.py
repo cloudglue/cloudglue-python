@@ -204,8 +204,12 @@ class Files:
     ):
         """Upload a file to Cloudglue.
 
+        Accepts video, audio, or image files. Image files are processed at the
+        file level only (no segmentation), so segmentation/thumbnail options do
+        not apply to them.
+
         Args:
-            file_path: Path to the local file to upload.
+            file_path: Path to the local file to upload (video, audio, or image).
             metadata: Optional user-provided metadata about the file.
             enable_segment_thumbnails: Whether to generate thumbnails for each segment.
             wait_until_finish: Whether to wait for the file processing to complete.
@@ -280,7 +284,7 @@ class Files:
         file.
 
         Accepted URL forms:
-            - Direct http(s) video/audio file URLs (e.g. `.mp4`)
+            - Direct http(s) video/audio/image file URLs (e.g. `.mp4`, `.jpg`, `.png`, `.webp`)
             - Public Dropbox share links (`dropbox.com/scl/fi/...`, `/s/...`)
             - TikTok video URLs (consumes scrape credits)
             - Loom share URLs (`https://www.loom.com/share/<id>`)

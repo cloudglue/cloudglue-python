@@ -35,10 +35,13 @@ class Describe:
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
         participants: Optional[List[Union[Dict[str, Any], NewDescribeAllOfParticipants]]] = None,
     ):
-        """Create a new media description job for a video.
+        """Create a new media description job for a video, audio, or image.
 
         Args:
-            url: Input video URL. Can be YouTube URLs or URIs of uploaded files.
+            url: Input media URL. Can be YouTube URLs or URIs of uploaded files
+                (video, audio, or image). Public direct image URLs (JPEG/PNG/WebP)
+                are also supported. Image inputs are described at the file level
+                only, so segmentation options do not apply to them.
             enable_summary: Whether to generate video-level and segment-level summaries and titles.
             enable_speech: Whether to generate speech transcript.
             enable_scene_text: Whether to generate scene text extraction.
@@ -285,8 +288,12 @@ class Describe:
     ):
         """Create a media description job and wait for it to complete.
 
+        Accepts video, audio, or image inputs; image inputs are described at the
+        file level only (no segmentation).
+
         Args:
-            url: Input video URL. Can be YouTube URLs or URIs of uploaded files.
+            url: Input media URL. Can be YouTube URLs or URIs of uploaded files
+                (video, audio, or image).
             poll_interval: Seconds between status checks.
             timeout: Total seconds to wait before giving up.
             enable_summary: Whether to generate video-level and segment-level summaries and titles.
