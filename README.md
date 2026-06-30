@@ -91,6 +91,52 @@ make generate  # Generate SDK from OpenAPI spec
 make build     # Build the package
 ```
 
+### Releasing
+
+Releases are published to PyPI automatically by the
+[`Publish to PyPI`](.github/workflows/publish.yml) GitHub Actions workflow
+whenever a `v*` tag is pushed. It uses
+[OIDC trusted publishing](https://docs.pypi.org/trusted-publishers/) — no API
+tokens are stored anywhere.
+
+To cut a release:
+
+```bash
+# 1. Bump the version in pyproject.toml (e.g. 0.7.15 -> 0.7.16) and commit it.
+# 2. Tag the commit. The tag MUST match the pyproject.toml version, prefixed
+#    with "v" — the workflow fails fast if they differ.
+git tag v0.7.16
+git push origin v0.7.16
+```
+
+Pushing the tag triggers, in order:
+
+1. **build** — verifies the tag matches `pyproject.toml`, builds the sdist +
+   wheel, runs `twine check`.
+2. **publish** — uploads the artifacts to PyPI via OIDC.
+3. **github-release** — creates a [GitHub Release](https://github.com/cloudglue/cloudglue-python/releases)
+   for the tag with auto-generated notes and the `.tar.gz` + `.whl` attached.
+
+#### One-time setup
+
+This is already configured for the `cloudglue` project, but for reference the
+workflow depends on:
+
+- A [PyPI trusted publisher](https://pypi.org/manage/project/cloudglue/settings/publishing/)
+  for repo `cloudglue/cloudglue-python`, workflow `publish.yml`, environment `pypi`.
+- A GitHub Environment named `pypi` (repo **Settings → Environments**).
+
+#### Manual publishing (fallback)
+
+The legacy token-based path still works if you need to publish outside CI. It
+requires a [PyPI API token](https://pypi.org/manage/account/token/) scoped to the
+`cloudglue` project, in `~/.pypirc` or via env vars:
+
+```bash
+make build
+TWINE_USERNAME=__token__ TWINE_PASSWORD='pypi-...' make publish
+```
+
 ### Project Structure
 
 Project directory structure described below:
