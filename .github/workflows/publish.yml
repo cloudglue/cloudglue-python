@@ -15,6 +15,8 @@ jobs:
   build:
     name: Build distribution
     runs-on: ubuntu-latest
+    permissions:
+      contents: read  # for checkout; upload-artifact uses the Actions runtime token, not GITHUB_TOKEN
     steps:
       - uses: actions/checkout@v4
         with:
