@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false  # don't leave GITHUB_TOKEN in git config; build runs third-party code
         # Submodule (spec/) is not needed — cloudglue/sdk is already committed.
 
       - uses: actions/setup-python@v5
