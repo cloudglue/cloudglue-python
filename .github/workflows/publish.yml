@@ -69,8 +69,6 @@ jobs:
           path: dist/
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true  # idempotent: re-running after a successful upload won't fail on a duplicate
 
   github-release:
     name: Create GitHub Release
