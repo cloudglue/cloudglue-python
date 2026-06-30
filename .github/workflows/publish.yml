@@ -3,8 +3,8 @@ name: Publish to PyPI
 # Publishes to PyPI via OIDC trusted publishing whenever a v* tag is pushed.
 # No API tokens required — PyPI verifies the GitHub OIDC identity instead.
 #
-#   git tag v0.7.15
-#   git push origin v0.7.15
+#   git tag v0.7.16        # must match the version in pyproject.toml
+#   git push origin v0.7.16
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
           PKG_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')"
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME (version $TAG_VERSION) does not match pyproject version $PKG_VERSION" >&2
+            echo "::error::Tag $GITHUB_REF_NAME (version $TAG_VERSION) does not match pyproject version $PKG_VERSION"
             exit 1
           fi
           echo "Building and publishing version $PKG_VERSION"
@@ -62,7 +62,6 @@ jobs:
       url: https://pypi.org/p/cloudglue
     permissions:
       id-token: write  # required for OIDC trusted publishing
-      actions: read    # allow download-artifact to fetch the build artifact
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -70,6 +69,8 @@ jobs:
           path: dist/
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true  # idempotent: re-running after a successful upload won't fail on a duplicate
 
   github-release:
     name: Create GitHub Release
@@ -77,7 +78,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # required to create the release and upload assets
-      actions: read    # allow download-artifact to fetch the build artifact
     steps:
       - uses: actions/download-artifact@v4
         with:
