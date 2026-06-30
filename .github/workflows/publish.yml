@@ -60,6 +60,7 @@ jobs:
       url: https://pypi.org/p/cloudglue
     permissions:
       id-token: write  # required for OIDC trusted publishing
+      actions: read    # allow download-artifact to fetch the build artifact
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -74,6 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # required to create the release and upload assets
+      actions: read    # allow download-artifact to fetch the build artifact
     steps:
       - uses: actions/download-artifact@v4
         with:
