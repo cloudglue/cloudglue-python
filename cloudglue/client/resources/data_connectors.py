@@ -54,20 +54,35 @@ class DataConnectors:
     ):
         """Browse files available in a connected data source.
 
-        Returns URIs compatible with Cloudglue's file import system.
-        Supports pagination and provider-specific filtering.
+        Returns URIs compatible with Cloudglue's file import system, plus
+        per-file provider metadata (the `metadata` field) so you can inspect
+        participants, hosts, durations, and AI summaries before importing.
+
+        Supports pagination and filtering; parameters a connector can't honor
+        are silently ignored. When filters are applied, a page may contain
+        fewer than `limit` items — even zero — while `has_more` is still
+        true: keep paginating until `next_page_token` is None rather than
+        stopping at the first short or empty page.
 
         Args:
             connector_id: The ID of the data connector.
             limit: Maximum number of files to return (1-100).
-            page_token: Opaque cursor for pagination. Use the `next_page_token` from a previous response.
-            var_from: Start date for filtering (YYYY-MM-DD). Applies to Zoom and Grain connectors only.
-            to: End date for filtering (YYYY-MM-DD). Applies to Zoom and Grain connectors only.
+            page_token: Opaque cursor for pagination. Use the `next_page_token`
+                from a previous response. Tokens are only valid with the same
+                filter parameters they were issued under.
+            var_from: Start date for filtering (YYYY-MM-DD, inclusive UTC day
+                bound). Supported by Grain, Zoom, Recall, Google Drive,
+                Dropbox, and Gong (Zoom and Gong default to a 6-month lookback
+                when omitted); ignored for S3/GCS.
+            to: End date for filtering (YYYY-MM-DD). Same per-connector
+                support as `var_from`.
             folder_id: Google Drive folder ID to list contents of. Applies to Google Drive connectors only.
             path: Dropbox folder path to list contents of (default: root). Applies to Dropbox connectors only.
             bucket: Bucket name. Required for S3 and GCS connectors.
             prefix: Key prefix filter. Applies to S3 and GCS connectors only.
-            title_search: Title search filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
+            title_search: Case-insensitive title filter. Supported by Grain,
+                Zoom, Google Drive, Dropbox, and Gong; ignored for Recall (no
+                title is available when listing) and S3/GCS.
             team: Team filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
             meeting_type: Meeting type filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
 
@@ -100,22 +115,25 @@ class DataConnectors:
     def get_source_metadata(self, connector_id: str, url: str):
         """Look up source metadata for a connector URI.
 
-        Returns provider-specific metadata (e.g. Grain recording details) for a
+        Returns provider-specific metadata (recording/call/file details) for a
         single file in a connected data source, without importing it.
 
-        Note: currently only supported for Grain connectors. Other connector
-        types raise a CloudglueError with status 501 (Not Implemented).
+        Supported for Grain, Zoom, Recall, Google Drive, Dropbox, and Gong
+        connectors. S3/GCS raise a CloudglueError with status 501 (plain
+        object stores have no richer metadata); a 502 is raised when the
+        upstream provider's response can't be validated.
 
         Args:
             connector_id: The ID of the data connector.
             url: Connector URI to look up. Must match the connector's type.
 
         Returns:
-            SourceMetadataResponse object.
+            SourceMetadataResponse object. `source_metadata` holds the
+            provider's metadata, discriminated by its `source_type` field.
 
         Raises:
             CloudglueError: If there is an error fetching source metadata
-                (including 501 for non-Grain connectors).
+                (including 501 for S3/GCS connectors).
         """
         try:
             return self.api.get_data_connector_source_metadata(
@@ -132,7 +150,9 @@ class DataConnectors:
 
         Imports the file at the given connector URI, returning the resulting
         Cloudglue file (creating it if it does not already exist). Idempotent:
-        syncing the same URI returns the existing file.
+        syncing the same URI returns the existing file. For Grain, Zoom,
+        Recall, Google Drive, Dropbox, and Gong the file's `source_metadata`
+        is populated from the provider.
 
         Besides the connector URIs emitted by `list_files()` (`s3://`,
         `gs://`, `gdrive://file/<id>`, `dropbox://<path>`, `zoom://`,
