@@ -24,6 +24,7 @@ class Share:
         description: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
         visibility: Optional[str] = None,
+        link_preview: Optional[str] = None,
     ):
         """Create a shareable asset.
 
@@ -38,6 +39,11 @@ class Share:
                 restricted to members of the owning account and stream via a signed,
                 token-gated playback url. Cannot be changed after creation. A file (or
                 file segment) can have at most one active share per visibility.
+            link_preview: Optional rich link-preview (Open Graph) metadata for unfurl
+                bots such as Slack and iMessage, either 'none' (API default) or 'full'.
+                Only affects private shares: 'none' emits no preview metadata, 'full'
+                emits title, description, and thumbnail tags. Public shares always emit
+                full metadata regardless of this value.
 
         Returns:
             ShareableAsset object with the share_url.
@@ -53,6 +59,7 @@ class Share:
                 description=description,
                 metadata=metadata,
                 visibility=visibility,
+                link_preview=link_preview,
             )
             return self.api.create_shareable_asset(create_shareable_asset_request=request)
         except ApiException as e:
@@ -128,6 +135,7 @@ class Share:
         title: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        link_preview: Optional[str] = None,
     ):
         """Update a shareable asset.
 
@@ -136,6 +144,10 @@ class Share:
             title: New title for the shareable asset.
             description: New description for the shareable asset.
             metadata: New metadata for the shareable asset.
+            link_preview: Rich link-preview (Open Graph) metadata for unfurl bots,
+                either 'none' or 'full'. Only affects private shares; public shares
+                always emit full metadata. Note visibility itself cannot be changed
+                after creation.
 
         Returns:
             Updated ShareableAsset object.
@@ -148,6 +160,7 @@ class Share:
                 title=title,
                 description=description,
                 metadata=metadata,
+                link_preview=link_preview,
             )
             return self.api.update_shareable_asset(
                 id=shareable_asset_id,
