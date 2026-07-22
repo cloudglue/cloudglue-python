@@ -72,8 +72,8 @@ class DataConnectors:
                 filter parameters they were issued under.
             var_from: Start date for filtering (YYYY-MM-DD, inclusive UTC day
                 bound). Supported by Grain, Zoom, Recall, Google Drive,
-                Dropbox, and Gong (Zoom and Gong default to a 6-month lookback
-                when omitted); ignored for S3/GCS.
+                Dropbox, Gong, and Iconik (Zoom and Gong default to a 6-month
+                lookback when omitted); ignored for S3/GCS.
             to: End date for filtering (YYYY-MM-DD). Same per-connector
                 support as `var_from`.
             folder_id: Google Drive folder ID to list contents of. Applies to Google Drive connectors only.
@@ -81,8 +81,9 @@ class DataConnectors:
             bucket: Bucket name. Required for S3 and GCS connectors.
             prefix: Key prefix filter. Applies to S3 and GCS connectors only.
             title_search: Case-insensitive title filter. Supported by Grain,
-                Zoom, Google Drive, Dropbox, and Gong; ignored for Recall (no
-                title is available when listing) and S3/GCS.
+                Zoom, Google Drive, Dropbox, Gong, and Iconik (full-text title
+                search); ignored for Recall (no title is available when
+                listing) and S3/GCS.
             team: Team filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
             meeting_type: Meeting type filter. Applies to Grain connectors only. See the [Grain documentation](https://developers.grain.com/#recording-filter) for more details.
 
@@ -118,8 +119,8 @@ class DataConnectors:
         Returns provider-specific metadata (recording/call/file details) for a
         single file in a connected data source, without importing it.
 
-        Supported for Grain, Zoom, Recall, Google Drive, Dropbox, and Gong
-        connectors. S3/GCS raise a CloudglueError with status 501 (plain
+        Supported for Grain, Zoom, Recall, Google Drive, Dropbox, Gong, and
+        Iconik connectors. S3/GCS raise a CloudglueError with status 501 (plain
         object stores have no richer metadata); a 502 is raised when the
         upstream provider's response can't be validated.
 
@@ -151,12 +152,13 @@ class DataConnectors:
         Imports the file at the given connector URI, returning the resulting
         Cloudglue file (creating it if it does not already exist). Idempotent:
         syncing the same URI returns the existing file. For Grain, Zoom,
-        Recall, Google Drive, Dropbox, and Gong the file's `source_metadata`
-        is populated from the provider.
+        Recall, Google Drive, Dropbox, Gong, and Iconik the file's
+        `source_metadata` is populated from the provider.
 
         Besides the connector URIs emitted by `list_files()` (`s3://`,
         `gs://`, `gdrive://file/<id>`, `dropbox://<path>`, `zoom://`,
-        `grain://recording/<id>`, ...), the server resolves these share links
+        `grain://recording/<id>`, `iconik://asset/<id>`, ...), the server
+        resolves these share links
         via the connector's OAuth:
             - Google Drive share links (`drive.google.com/file/d/<id>`,
               `/open?id=<id>`)

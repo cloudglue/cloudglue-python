@@ -423,6 +423,34 @@ class Files:
         except Exception as e:
             raise CloudglueError(str(e))
 
+    def sync_source_metadata(self, file_id: str):
+        """Refresh a connector file's source metadata.
+
+        Re-fetches the file's `source_metadata` live from its data connector
+        (google-drive, dropbox, zoom, gong, recall, grain, or iconik) and
+        updates the stored value. If the file belongs to any metadata
+        collections, their search documents are re-indexed with the refreshed
+        metadata. Works for both metadata-only and fully ingested connector
+        files. Free — no media is downloaded or processed.
+
+        Args:
+            file_id: The ID of the connector-backed file to refresh.
+
+        Returns:
+            The file object with refreshed `source_metadata`.
+
+        Raises:
+            CloudglueError: If the file has no connector URI, the source does
+                not support metadata lookup, or the account has no connector
+                of that type (400), or the file is not found (404).
+        """
+        try:
+            return self.api.sync_file_source_metadata(file_id=file_id)
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
     def delete(self, file_id: str):
         """Delete a file.
 

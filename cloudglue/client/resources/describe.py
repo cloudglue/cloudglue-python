@@ -121,6 +121,7 @@ class Describe:
         include_word_timestamps: Optional[bool] = None,
         include_chapters: Optional[bool] = None,
         include_shots: Optional[bool] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """Get the status and data of a media description job.
 
@@ -137,6 +138,8 @@ class Describe:
             include_word_timestamps: When true, include word-level timestamps on speech entries. Not available for YouTube sources. Only applies when response_format=json.
             include_chapters: When true, include narrative chapters in the response (when segmentation strategy is 'narrative')
             include_shots: When true, include shot boundaries in the response (when segmentation strategy is 'shot-detector')
+            include_metadata: When true, include the file's `metadata` and `source_metadata`
+                on the response's `file` object.
 
         Returns:
             The typed Describe job object with current status and data (if completed).
@@ -156,6 +159,7 @@ class Describe:
                 include_word_timestamps=include_word_timestamps,
                 include_chapters=include_chapters,
                 include_shots=include_shots,
+                include_metadata=include_metadata,
             )
             return response
         except ApiException as e:
@@ -173,6 +177,7 @@ class Describe:
         response_format: Optional[str] = None,
         url: Optional[str] = None,
         include_data: Optional[bool] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """List all media description jobs with optional filtering.
 
@@ -186,6 +191,8 @@ class Describe:
             url: Filter description jobs by the input URL used for description.
             include_data: Include the data in the response. If false, the response will only include
                 the job information and not the data to minimize the response size.
+            include_metadata: When true, include each file's `metadata` and `source_metadata`
+                on the `file` object of each job.
 
         Returns:
             The typed DescribeList object with array of describe jobs.
@@ -204,6 +211,7 @@ class Describe:
                 response_format=response_format,
                 url=url,
                 include_data=include_data,
+                include_metadata=include_metadata,
             )
             return response
         except ApiException as e:

@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional, Union, Literal
 
 from cloudglue.sdk.models.search_request import SearchRequest
 from cloudglue.sdk.models.search_filter import SearchFilter
+from cloudglue.sdk.models.search_filter_criteria import SearchFilterCriteria
 from cloudglue.sdk.models.search_filter_metadata_inner import SearchFilterMetadataInner
 from cloudglue.sdk.models.search_filter_file_inner import SearchFilterFileInner
 from cloudglue.sdk.models.search_filter_video_info_inner import SearchFilterVideoInfoInner
@@ -117,6 +118,7 @@ class Search:
         metadata_filters: Optional[List[Dict[str, Any]]] = None,
         video_info_filters: Optional[List[Dict[str, Any]]] = None,
         file_filters: Optional[List[Dict[str, Any]]] = None,
+        source_metadata_filters: Optional[List[Dict[str, Any]]] = None,
     ) -> SearchFilter:
         """Create a search filter using simple dictionaries.
         
@@ -133,7 +135,15 @@ class Search:
             video_info_filters: List of video info filter dictionaries. Same structure as metadata_filters,
                 plus optional 'scope' ('file' or 'segment'). Defaults to 'file'.
             file_filters: List of file filter dictionaries (same structure, without scope)
-            
+            source_metadata_filters: List of connector source-metadata filter dictionaries
+                (same structure, without scope — file scope only). Paths address the
+                connector-provided `source_metadata` object, e.g. 'topic' (zoom),
+                'title' (gong/grain/iconik), 'participants.name' (grain),
+                'parties.email' (gong), 'name' (google-drive/dropbox),
+                'media_type' (iconik), or 'iconik_metadata.<FieldName>' (iconik
+                custom metadata-view fields, use ContainsAny for list fields).
+                Paths through arrays of objects match when ANY element matches.
+
         Returns:
             SearchFilter object
             
@@ -166,11 +176,18 @@ class Search:
             file_objs = [
                 SearchFilterFileInner(**f) for f in file_filters
             ]
-            
+
+        source_metadata_objs = None
+        if source_metadata_filters:
+            source_metadata_objs = [
+                SearchFilterCriteria(**f) for f in source_metadata_filters
+            ]
+
         return SearchFilter(
             metadata=metadata_objs,
             video_info=video_info_objs,
             file=file_objs,
+            source_metadata=source_metadata_objs,
         )
 
     def search(

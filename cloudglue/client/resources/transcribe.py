@@ -86,12 +86,19 @@ class Transcribe:
             raise CloudglueError(str(e))
 
     # TODO (kdr): asyncio version of this
-    def get(self, job_id: str, response_format: Optional[str] = None):
+    def get(
+        self,
+        job_id: str,
+        response_format: Optional[str] = None,
+        include_metadata: Optional[bool] = None,
+    ):
         """Get the current state of a transcribe job.
 
         Args:
             job_id: The unique identifier of the transcribe job.
             response_format: The format of the response, one of 'json' or 'markdown' (json by default)
+            include_metadata: When true, include the file's `metadata` and `source_metadata`
+                on the response's `file` object.
 
         Returns:
             The typed Transcribe job object with status and data.
@@ -101,7 +108,11 @@ class Transcribe:
         """
         try:
             # Use the standard method to get a properly typed object
-            response = self.api.get_transcribe(job_id=job_id, response_format=response_format)
+            response = self.api.get_transcribe(
+                job_id=job_id,
+                response_format=response_format,
+                include_metadata=include_metadata,
+            )
             return response
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
@@ -117,6 +128,7 @@ class Transcribe:
         created_after: Optional[str] = None,
         response_format: Optional[str] = None,
         url: Optional[str] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """List transcribe jobs.
 
@@ -128,6 +140,8 @@ class Transcribe:
             created_after: Filter by jobs created after a specific date, YYYY-MM-DD format in UTC.
             response_format: The format of the response, one of 'json' or 'markdown' (json by default)
             url: Filter by jobs with a specific URL.
+            include_metadata: When true, include each file's `metadata` and `source_metadata`
+                on the `file` object of each job.
 
         Returns:
             A list of transcribe jobs.
@@ -144,6 +158,7 @@ class Transcribe:
                 created_after=created_after,
                 response_format=response_format,
                 url=url,
+                include_metadata=include_metadata,
             )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
