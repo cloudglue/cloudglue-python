@@ -25,6 +25,7 @@ from cloudglue.sdk.models.recall_source_metadata import RecallSourceMetadata
 from cloudglue.sdk.models.google_drive_source_metadata import GoogleDriveSourceMetadata
 from cloudglue.sdk.models.dropbox_source_metadata import DropboxSourceMetadata
 from cloudglue.sdk.models.gong_source_metadata import GongSourceMetadata
+from cloudglue.sdk.models.iconik_source_metadata import IconikSourceMetadata
 
 # Export key classes at the module level for clean imports
 __all__ = [
@@ -45,4 +46,5 @@ __all__ = [
     "GoogleDriveSourceMetadata",
     "DropboxSourceMetadata",
     "GongSourceMetadata",
+    "IconikSourceMetadata",
 ]

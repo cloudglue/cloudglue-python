@@ -392,6 +392,7 @@ class Segmentations:
         response_format: Optional[str] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """List describe jobs for a segmentation.
 
@@ -404,6 +405,8 @@ class Segmentations:
             response_format: Output format for the describe data ('json' or 'markdown')
             limit: Number of items to return (max 100)
             offset: Offset from the start of the list
+            include_metadata: When true, include each file's `metadata` and `source_metadata`
+                on the `file` object of each job.
 
         Returns:
             DescribeList containing describe jobs for the segmentation
@@ -418,6 +421,7 @@ class Segmentations:
                 response_format=response_format,
                 limit=limit,
                 offset=offset,
+                include_metadata=include_metadata,
             )
             return response
         except ApiException as e:

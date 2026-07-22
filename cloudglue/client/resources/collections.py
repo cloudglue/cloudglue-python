@@ -41,7 +41,11 @@ class Collections:
         """Create a new collection.
 
         Args:
-            collection_type: Type of collection ('entities', 'rich-transcripts', 'media-descriptions', 'face-analysis')
+            collection_type: Type of collection ('entities', 'rich-transcripts', 'media-descriptions',
+                'face-analysis', 'metadata'). 'metadata' collections index connector source metadata
+                and user metadata into file-level search documents WITHOUT downloading or processing
+                the media — free to index, no processing configs, supports google-drive, dropbox,
+                zoom, gong, recall, grain, and iconik URLs.
             name: Name of the collection (must be unique)
             description: Optional description of the collection
             extract_config: Optional configuration for extraction processing
@@ -117,7 +121,8 @@ class Collections:
             offset: Number of collections to skip
             order: Field to sort by ('created_at'). Defaults to 'created_at'
             sort: Sort direction ('asc', 'desc'). Defaults to 'desc'
-            collection_type: Filter by collection type ('video', 'audio', 'image', 'text')
+            collection_type: Filter by collection type ('entities', 'rich-transcripts',
+                'media-descriptions', 'face-analysis', 'metadata')
 
         Returns:
             The typed CollectionList object with collections and metadata
@@ -415,6 +420,7 @@ class Collections:
         start_time_seconds: Optional[float] = None,
         end_time_seconds: Optional[float] = None,
         response_format: Optional[str] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """Get the rich transcript of a video in a collection.
 
@@ -424,6 +430,8 @@ class Collections:
             start_time_seconds: The start time in seconds to filter the rich transcript
             end_time_seconds: The end time in seconds to filter the rich transcript
             response_format: The format of the response, one of 'json' or 'markdown' (json by default)
+            include_metadata: When true, include the file's `metadata` and `source_metadata`
+                on the response's `file` object.
 
         Returns:
             The typed RichTranscript object with video rich transcript data
@@ -434,7 +442,7 @@ class Collections:
         try:
             # Use the standard method to get a properly typed object
             response = self.api.get_transcripts(
-                collection_id=collection_id, file_id=file_id, start_time_seconds=start_time_seconds, end_time_seconds=end_time_seconds, response_format=response_format
+                collection_id=collection_id, file_id=file_id, start_time_seconds=start_time_seconds, end_time_seconds=end_time_seconds, response_format=response_format, include_metadata=include_metadata
             )
             return response
         except ApiException as e:
@@ -543,6 +551,7 @@ class Collections:
         added_before: Optional[str] = None,
         added_after: Optional[str] = None,
         response_format: Optional[str] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """List all rich transcription data for files in a collection.
 
@@ -557,6 +566,8 @@ class Collections:
             added_before: Filter files added before a specific date (YYYY-MM-DD format), in UTC timezone
             added_after: Filter files added after a specific date (YYYY-MM-DD format), in UTC timezone
             response_format: Format for the response
+            include_metadata: When true, include each file's `metadata` and `source_metadata`
+                on the `file` object of each entry.
 
         Returns:
             Collection rich transcripts list response
@@ -574,6 +585,7 @@ class Collections:
                 added_before=added_before,
                 added_after=added_after,
                 response_format=response_format,
+                include_metadata=include_metadata,
             )
             return response
         except ApiException as e:
@@ -594,6 +606,7 @@ class Collections:
         include_word_timestamps: Optional[bool] = None,
         include_chapters: Optional[bool] = None,
         include_shots: Optional[bool] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """Get the media descriptions of a video in a collection.
 
@@ -607,6 +620,8 @@ class Collections:
             include_word_timestamps: When true, include word-level timestamps on speech entries. Not available for YouTube sources. Only applies when response_format=json.
             include_chapters: When true, include narrative chapters in the response (when segmentation strategy is 'narrative')
             include_shots: When true, include shot boundaries in the response (when segmentation strategy is 'shot-detector')
+            include_metadata: When true, include the file's `metadata` and `source_metadata`
+                on the response's `file` object.
 
         Returns:
             The typed MediaDescription object with video media description data
@@ -617,7 +632,7 @@ class Collections:
         try:
             # Use the standard method to get a properly typed object
             response = self.api.get_media_descriptions(
-                collection_id=collection_id, file_id=file_id, start_time_seconds=start_time_seconds, end_time_seconds=end_time_seconds, response_format=response_format, include_thumbnails=include_thumbnails, include_word_timestamps=include_word_timestamps, include_chapters=include_chapters, include_shots=include_shots
+                collection_id=collection_id, file_id=file_id, start_time_seconds=start_time_seconds, end_time_seconds=end_time_seconds, response_format=response_format, include_thumbnails=include_thumbnails, include_word_timestamps=include_word_timestamps, include_chapters=include_chapters, include_shots=include_shots, include_metadata=include_metadata
             )
             return response
         except ApiException as e:
@@ -635,6 +650,7 @@ class Collections:
         added_before: Optional[str] = None,
         added_after: Optional[str] = None,
         response_format: Optional[str] = None,
+        include_metadata: Optional[bool] = None,
     ):
         """List all media description data for files in a collection.
 
@@ -649,6 +665,8 @@ class Collections:
             added_before: Filter files added before a specific date (YYYY-MM-DD format), in UTC timezone
             added_after: Filter files added after a specific date (YYYY-MM-DD format), in UTC timezone
             response_format: Format for the response
+            include_metadata: When true, include each file's `metadata` and `source_metadata`
+                on the `file` object of each entry.
 
         Returns:
             Collection media descriptions list response
@@ -666,6 +684,7 @@ class Collections:
                 added_before=added_before,
                 added_after=added_after,
                 response_format=response_format,
+                include_metadata=include_metadata,
             )
             return response
         except ApiException as e:
