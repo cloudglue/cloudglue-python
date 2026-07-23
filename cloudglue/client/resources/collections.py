@@ -48,7 +48,11 @@ class Collections:
                 zoom, gong, recall, grain, and iconik URLs.
             name: Name of the collection (must be unique)
             description: Optional description of the collection
-            extract_config: Optional configuration for extraction processing
+            extract_config: Optional configuration for extraction processing (entities
+                collections). Supports enable_metadata_mode to extract entities from
+                each file's metadata document instead of media content — file-level
+                only, 1 credit per file, works on metadata-only files; mutually
+                exclusive with enable_transcript_mode.
             transcribe_config: Optional configuration for transcription processing
             describe_config: Optional configuration for media description processing
             default_segmentation_config: Default segmentation configuration for files in this collection.

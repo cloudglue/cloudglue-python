@@ -29,6 +29,8 @@ class Extract:
         schema: Optional[Dict[str, Any]] = None,
         enable_video_level_entities: Optional[bool] = None,
         enable_segment_level_entities: Optional[bool] = None,
+        enable_transcript_mode: Optional[bool] = None,
+        enable_metadata_mode: Optional[bool] = None,
         segmentation_id: Optional[str] = None,
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
@@ -43,6 +45,13 @@ class Extract:
             schema: A JSON schema defining the structure of the data to extract. Required if prompt is not provided.
             enable_video_level_entities: Whether to extract entities at the video level
             enable_segment_level_entities: Whether to extract entities at the segment level
+            enable_transcript_mode: When enabled, extract entities from the transcript
+                instead of the media content. Mutually exclusive with enable_metadata_mode.
+            enable_metadata_mode: When enabled, extract entities from the file's
+                metadata document (filename, file details, user metadata, and connector
+                source metadata) instead of the media content. File-level entities only;
+                flat 1 credit per file; works on metadata-only files without ingesting
+                their media. Mutually exclusive with enable_transcript_mode.
             segmentation_id: Segmentation job id to use. Cannot be provided together with segmentation_config.
             segmentation_config: Configuration for video segmentation. Cannot be provided together with segmentation_id.
             thumbnails_config: Optional configuration for segment thumbnails
@@ -79,6 +88,8 @@ class Extract:
                 var_schema=schema,
                 enable_video_level_entities=enable_video_level_entities,
                 enable_segment_level_entities=enable_segment_level_entities,
+                enable_transcript_mode=enable_transcript_mode,
+                enable_metadata_mode=enable_metadata_mode,
                 segmentation_id=segmentation_id,
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config_obj,
@@ -194,6 +205,8 @@ class Extract:
         schema: Optional[Dict[str, Any]] = None,
         enable_video_level_entities: Optional[bool] = None,
         enable_segment_level_entities: Optional[bool] = None,
+        enable_transcript_mode: Optional[bool] = None,
+        enable_metadata_mode: Optional[bool] = None,
         segmentation_id: Optional[str] = None,
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
@@ -213,6 +226,12 @@ class Extract:
             schema: A JSON schema defining the structure of the data to extract. Required if prompt is not provided.
             enable_video_level_entities: Whether to extract entities at the video level
             enable_segment_level_entities: Whether to extract entities at the segment level
+            enable_transcript_mode: When enabled, extract entities from the transcript
+                instead of the media content. Mutually exclusive with enable_metadata_mode.
+            enable_metadata_mode: When enabled, extract entities from the file's
+                metadata document instead of the media content. File-level entities
+                only; flat 1 credit per file; works on metadata-only files. Mutually
+                exclusive with enable_transcript_mode.
             segmentation_id: Segmentation job id to use. Cannot be provided together with segmentation_config.
             segmentation_config: Configuration for video segmentation. Cannot be provided together with segmentation_id.
             thumbnails_config: Optional configuration for segment thumbnails
@@ -236,6 +255,8 @@ class Extract:
                 schema=schema,
                 enable_video_level_entities=enable_video_level_entities,
                 enable_segment_level_entities=enable_segment_level_entities,
+                enable_transcript_mode=enable_transcript_mode,
+                enable_metadata_mode=enable_metadata_mode,
                 segmentation_id=segmentation_id,
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config,
