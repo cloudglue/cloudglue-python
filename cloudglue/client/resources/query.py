@@ -199,7 +199,10 @@ class Query:
     ):
         """Wait for a background query run to reach a terminal state.
 
-        Polls `get()` until the run is completed, failed, or cancelled.
+        Polls `get()` until the run is completed, failed, or cancelled, and
+        returns the final QueryResult either way — a failed run is returned
+        with its `error` payload (code/message) intact so callers can inspect
+        why it failed, matching the other wait helpers in this client.
 
         Args:
             query_id: The ID of the query run to wait for.
@@ -207,18 +210,18 @@ class Query:
             timeout: Maximum time to wait (in seconds).
 
         Returns:
-            The final QueryResult object.
+            The final QueryResult object (status 'completed', 'failed', or
+            'cancelled'; on failure, `error` carries the details).
 
         Raises:
-            CloudglueError: If the run fails or the timeout is reached.
+            CloudglueError: If polling itself errors or the timeout is
+                reached.
         """
         try:
             elapsed = 0
             while elapsed < timeout:
                 run = self.get(query_id)
                 if run.status in ("completed", "failed", "cancelled"):
-                    if run.status == "failed":
-                        raise CloudglueError(f"Query run failed: {query_id}")
                     return run
                 time.sleep(poll_interval)
                 elapsed += poll_interval
