@@ -22,6 +22,7 @@ from cloudglue.sdk.api.response_api import ResponseApi
 from cloudglue.sdk.api.share_api import ShareApi
 from cloudglue.sdk.api.data_connectors_api import DataConnectorsApi
 from cloudglue.sdk.api.deep_search_api import DeepSearchApi
+from cloudglue.sdk.api.query_api import QueryApi
 from cloudglue.sdk.configuration import Configuration
 from cloudglue.sdk.api_client import ApiClient
 
@@ -46,6 +47,7 @@ from cloudglue.client.resources import (
     Share,
     DataConnectors,
     DeepSearch,
+    Query,
 )
 from cloudglue._version import __version__
 
@@ -99,6 +101,7 @@ class Cloudglue:
         self.share_api = ShareApi(self.api_client)
         self.data_connectors_api = DataConnectorsApi(self.api_client)
         self.deep_search_api = DeepSearchApi(self.api_client)
+        self.query_api = QueryApi(self.api_client)
 
         # Set up resources with their respective API clients
         self.chat = Chat(self.chat_api)
@@ -120,6 +123,7 @@ class Cloudglue:
         self.share = Share(self.share_api)
         self.data_connectors = DataConnectors(self.data_connectors_api)
         self.deep_search = DeepSearch(self.deep_search_api)
+        self.query = Query(self.query_api)
 
     def close(self):
         """Close the API client."""

@@ -21,8 +21,10 @@ from cloudglue.client.resources.responses import Responses
 from cloudglue.client.resources.share import Share
 from cloudglue.client.resources.data_connectors import DataConnectors
 from cloudglue.client.resources.deep_search import DeepSearch
+from cloudglue.client.resources.query import Query
 
 __all__ = [
+    "Query",
     "CloudglueError",
     "Chat",
     "Completions",
