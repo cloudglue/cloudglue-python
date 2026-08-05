@@ -98,10 +98,17 @@ class DeepSearch:
 
         Args:
             query: The search query.
-            collections: List of collection IDs to search within.
+            collections: List of collection IDs to search within. Collections may be of
+                type 'rich-transcripts', 'media-descriptions', 'metadata', or 'entities'.
             files: List of file references to search (file UUIDs, cloudglue URIs, or URLs).
             use_default_index: When True, search all default-indexed files for the account.
-            scope: Scope of results - 'segment' (default) or 'file'.
+            scope: Scope of results - 'segment' or 'file'. With an explicit value, every
+                collection in the knowledge base must be searchable at that scope
+                (metadata and file-level entities collections require 'file';
+                segment-level entities collections require 'segment'). Omit for auto:
+                the search planner picks a scope per search plan, each collection is
+                searched at the scope it supports, and results may mix segment and
+                file types (the response's scope is None).
             limit: Maximum number of results (1-500, default 20).
             exclude_weak_results: When True, removes weak matches from results.
             include: Additional fields to include (e.g., ['search_queries']).
