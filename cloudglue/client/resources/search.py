@@ -211,8 +211,9 @@ class Search:
             scope: Search scope - 'file' searches at file level (requires collections with enable_summary=true), 
                    'segment' searches at segment level, 'face' searches for faces in videos using image matching
             collections: List of collection IDs to search within. 
-                        For text search (scope='file' or 'segment'): Must be rich-transcript collections 
-                        (collection_type='rich-transcripts' or 'media-descriptions'). For file-level search, 
+                        For text search (scope='file' or 'segment'): Must be collections of
+                        type 'rich-transcripts', 'media-descriptions', 'metadata', or
+                        'entities'. For file-level search, 
                         collections must have 'enable_summary: true' in transcribe_config.
                         For face search (scope='face'): Must be face-analysis collections (collection_type='face-analysis').
             query: Text search query to find relevant content (required for scope='file' or 'segment', not used for scope='face')

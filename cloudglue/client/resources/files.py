@@ -363,7 +363,8 @@ class Files:
         """List available files.
 
         Args:
-            status: Optional filter by file status ('processing', 'ready', 'failed').
+            status: Optional filter by file status ('pending', 'processing',
+                'completed', 'failed', 'not_applicable').
             created_before: Optional filter by files created before a specific date, YYYY-MM-DD format in UTC
             created_after: Optional filter by files created after a specific date, YYYY-MM-DD format in UTC
             limit: Optional maximum number of files to return (default 50, max 100).

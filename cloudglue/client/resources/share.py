@@ -40,10 +40,13 @@ class Share:
                 token-gated playback url. Cannot be changed after creation. A file (or
                 file segment) can have at most one active share per visibility.
             link_preview: Optional rich link-preview (Open Graph) metadata for unfurl
-                bots such as Slack and iMessage, either 'none' (API default) or 'full'.
-                Only affects private shares: 'none' emits no preview metadata, 'full'
-                emits title, description, and thumbnail tags. Public shares always emit
-                full metadata regardless of this value.
+                bots such as Slack and iMessage: 'none' (API default), 'full', or
+                'player'. Only affects private shares: 'none' emits no preview
+                metadata, 'full' emits title, description, and thumbnail tags, and
+                'player' additionally lets the share play inline when unfurled by the
+                Cloudglue Slack app — anyone who can see the Slack message can play
+                it. Public shares always emit full metadata (and unfurl playable
+                where the Slack app is installed) regardless of this value.
 
         Returns:
             ShareableAsset object with the share_url.
@@ -67,11 +70,23 @@ class Share:
         except Exception as e:
             raise CloudglueError(str(e))
 
-    def get(self, shareable_asset_id: str):
+    def get(
+        self,
+        shareable_asset_id: str,
+        clip_start: Optional[float] = None,
+        clip_end: Optional[float] = None,
+    ):
         """Get a specific shareable asset by ID.
 
         Args:
             shareable_asset_id: The ID of the shareable asset to retrieve.
+            clip_start: Optional instant-clip window start in seconds. Must be
+                provided together with clip_end. When set, the returned stream_url
+                plays only the [clip_start, clip_end] window — the share itself is
+                untouched, and reads without the params keep returning the
+                full-asset stream.
+            clip_end: Optional instant-clip window end in seconds; must be greater
+                than clip_start. Must be provided together with clip_start.
 
         Returns:
             ShareableAsset object.
@@ -80,7 +95,11 @@ class Share:
             CloudglueError: If there is an error retrieving the shareable asset.
         """
         try:
-            return self.api.get_shareable_asset(id=shareable_asset_id)
+            return self.api.get_shareable_asset(
+                id=shareable_asset_id,
+                clip_start=clip_start,
+                clip_end=clip_end,
+            )
         except ApiException as e:
             raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
         except Exception as e:
@@ -144,9 +163,12 @@ class Share:
             title: New title for the shareable asset.
             description: New description for the shareable asset.
             metadata: New metadata for the shareable asset.
-            link_preview: Rich link-preview (Open Graph) metadata for unfurl bots,
-                either 'none' or 'full'. Only affects private shares; public shares
-                always emit full metadata. Note visibility itself cannot be changed
+            link_preview: Rich link-preview (Open Graph) metadata for unfurl bots:
+                'none', 'full', or 'player' (plays inline when unfurled by the
+                Cloudglue Slack app — anyone who can see the Slack message can play
+                it). Only affects private shares; public shares always emit full
+                metadata. Downgrading from 'player' revokes playback in
+                already-posted unfurls. Note visibility itself cannot be changed
                 after creation.
 
         Returns:
