@@ -29,7 +29,7 @@ class UpdateShareableAssetRequest(BaseModel):
     title: Optional[StrictStr] = Field(default=None, description="The title of the shareable asset")
     description: Optional[StrictStr] = Field(default=None, description="The description of the shareable asset")
     metadata: Optional[Dict[str, Any]] = Field(default=None, description="The metadata of the shareable asset")
-    link_preview: Optional[StrictStr] = Field(default=None, description="Rich link-preview metadata for unfurl bots. Only affects private shares: 'none' keeps today's no-preview behavior; 'full' emits title, description, and thumbnail Open Graph tags. Public shares always emit full metadata.")
+    link_preview: Optional[StrictStr] = Field(default=None, description="Rich link-preview metadata for unfurl bots. Only affects private shares: 'none' keeps today's no-preview behavior; 'full' emits title, description, and thumbnail Open Graph tags; 'player' additionally lets the share play inline when unfurled by the Cloudglue Slack app — anyone who can see the Slack message can play it. Downgrading from 'player' revokes playback in already-posted unfurls. Public shares always emit full metadata.")
     __properties: ClassVar[List[str]] = ["title", "description", "metadata", "link_preview"]
 
     @field_validator('link_preview')
@@ -38,8 +38,8 @@ class UpdateShareableAssetRequest(BaseModel):
         if value is None:
             return value
 
-        if value not in set(['none', 'full']):
-            raise ValueError("must be one of enum values ('none', 'full')")
+        if value not in set(['none', 'full', 'player']):
+            raise ValueError("must be one of enum values ('none', 'full', 'player')")
         return value
 
     model_config = ConfigDict(
