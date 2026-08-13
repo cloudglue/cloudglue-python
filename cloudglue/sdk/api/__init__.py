@@ -12,6 +12,7 @@ from cloudglue.sdk.api.face_match_api import FaceMatchApi
 from cloudglue.sdk.api.file_segments_api import FileSegmentsApi
 from cloudglue.sdk.api.files_api import FilesApi
 from cloudglue.sdk.api.frames_api import FramesApi
+from cloudglue.sdk.api.metadata_imports_api import MetadataImportsApi
 from cloudglue.sdk.api.query_api import QueryApi
 from cloudglue.sdk.api.response_api import ResponseApi
 from cloudglue.sdk.api.search_api import SearchApi
