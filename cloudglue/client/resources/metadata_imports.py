@@ -35,6 +35,7 @@ class MetadataImports:
         start: Optional[bool] = None,
         max_files: Optional[int] = None,
         include_thumbnails: Optional[bool] = None,
+        enrich_metadata: Optional[bool] = None,
     ):
         """Create a bulk metadata import for a metadata collection.
 
@@ -53,10 +54,11 @@ class MetadataImports:
                 google-drive, dropbox, zoom, gong, recall, grain, iconik.
             filters: Optional listing passes (each a MetadataImportFilterSet
                 or dict): 'from'/'to' date window (YYYY-MM-DD, UTC),
-                'title_search', 'folder_id' (Google Drive only), 'path'
-                (Dropbox only — non-recursive, direct children), 'team' /
-                'meeting_type' (Grain only). Empty or omitted means one
-                unfiltered pass; overlapping passes are deduplicated.
+                'title_search', 'folder_id' (Google Drive only), 'path' and
+                'recursive' (Dropbox only — 'path' lists direct children,
+                'recursive' set to 'true' lists the whole subtree under it),
+                'team' / 'meeting_type' (Grain only). Empty or omitted means
+                one unfiltered pass; overlapping passes are deduplicated.
             default_mode: Mode used when a run does not specify one: 'append'
                 (default — import new files and retry previously-failed ones)
                 or 'refresh' (re-import everything the filters match).
@@ -75,7 +77,16 @@ class MetadataImports:
                 never runs the delete-missing sweep.
             include_thumbnails: Copy connector poster images as default
                 thumbnails for imported files, for sources that provide one
-                (Grain and iconik today). Off by default.
+                (Grain, iconik, Google Drive, and Dropbox today). Off by
+                default. Poster copying runs asynchronously behind indexing at
+                a provider-safe pace, so it does not slow the import itself.
+            enrich_metadata: Backfill source-metadata fields the connector's
+                list endpoint omits, after each index batch settles: Gong
+                parties + Call Spotlight content (batched — enriched docs are
+                re-embedded so the content is searchable) and Dropbox
+                media_info duration/dimensions (per-file). No-op for other
+                connectors. Off by default: it spends upstream API budget and,
+                for Gong, embedding work.
 
         Returns:
             MetadataImportDetail object (definition plus its latest run).
@@ -94,6 +105,7 @@ class MetadataImports:
                 start=start,
                 max_files=max_files,
                 include_thumbnails=include_thumbnails,
+                enrich_metadata=enrich_metadata,
             )
             return self.api.create_metadata_import(
                 collection_id=collection_id,
@@ -202,6 +214,7 @@ class MetadataImports:
         delete_missing: Optional[bool] = None,
         max_files: Optional[int] = None,
         include_thumbnails: Optional[bool] = None,
+        enrich_metadata: Optional[bool] = None,
     ):
         """Trigger a new run of a saved import.
 
@@ -220,6 +233,8 @@ class MetadataImports:
             max_files: Override the definition's max_files for this run.
             include_thumbnails: Override the definition's include_thumbnails
                 for this run.
+            enrich_metadata: Override the definition's enrich_metadata for
+                this run.
 
         Returns:
             MetadataImportRun object.
@@ -234,6 +249,7 @@ class MetadataImports:
                 delete_missing=delete_missing,
                 max_files=max_files,
                 include_thumbnails=include_thumbnails,
+                enrich_metadata=enrich_metadata,
             )
             return self.api.create_metadata_import_run(
                 collection_id=collection_id,

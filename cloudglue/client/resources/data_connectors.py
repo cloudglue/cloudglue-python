@@ -46,6 +46,7 @@ class DataConnectors:
         to: Optional[str] = None,
         folder_id: Optional[str] = None,
         path: Optional[str] = None,
+        recursive: Optional[str] = None,
         bucket: Optional[str] = None,
         prefix: Optional[str] = None,
         title_search: Optional[str] = None,
@@ -78,6 +79,11 @@ class DataConnectors:
                 support as `var_from`.
             folder_id: Google Drive folder ID to list contents of. Applies to Google Drive connectors only.
             path: Dropbox folder path to list contents of (default: root). Applies to Dropbox connectors only.
+            recursive: Dropbox only: 'true' lists the whole subtree under
+                `path` (or the whole account when no `path` is given) instead
+                of its direct children. Ignored by every other connector.
+                Built for bulk metadata imports; interactive browsing should
+                stay non-recursive.
             bucket: Bucket name. Required for S3 and GCS connectors.
             prefix: Key prefix filter. Applies to S3 and GCS connectors only.
             title_search: Case-insensitive title filter. Supported by Grain,
@@ -102,6 +108,7 @@ class DataConnectors:
                 to=to,
                 folder_id=folder_id,
                 path=path,
+                recursive=recursive,
                 bucket=bucket,
                 prefix=prefix,
                 title_search=title_search,
