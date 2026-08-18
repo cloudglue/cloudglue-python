@@ -22,10 +22,11 @@ from cloudglue.client.resources.share import Share
 from cloudglue.client.resources.data_connectors import DataConnectors
 from cloudglue.client.resources.deep_search import DeepSearch
 from cloudglue.client.resources.query import Query
-from cloudglue.client.resources.metadata_imports import MetadataImports
+from cloudglue.client.resources.bulk_imports import BulkImports, MetadataImports
 
 __all__ = [
     "Query",
+    "BulkImports",
     "MetadataImports",
     "CloudglueError",
     "Chat",

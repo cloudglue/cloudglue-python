@@ -1,6 +1,7 @@
 # flake8: noqa
 
 # import apis into api package
+from cloudglue.sdk.api.bulk_imports_api import BulkImportsApi
 from cloudglue.sdk.api.chat_api import ChatApi
 from cloudglue.sdk.api.collections_api import CollectionsApi
 from cloudglue.sdk.api.data_connectors_api import DataConnectorsApi
@@ -12,7 +13,6 @@ from cloudglue.sdk.api.face_match_api import FaceMatchApi
 from cloudglue.sdk.api.file_segments_api import FileSegmentsApi
 from cloudglue.sdk.api.files_api import FilesApi
 from cloudglue.sdk.api.frames_api import FramesApi
-from cloudglue.sdk.api.metadata_imports_api import MetadataImportsApi
 from cloudglue.sdk.api.query_api import QueryApi
 from cloudglue.sdk.api.response_api import ResponseApi
 from cloudglue.sdk.api.search_api import SearchApi
