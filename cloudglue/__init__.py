@@ -27,7 +27,7 @@ from cloudglue.sdk.models.dropbox_source_metadata import DropboxSourceMetadata
 from cloudglue.sdk.models.gong_source_metadata import GongSourceMetadata
 from cloudglue.sdk.models.iconik_source_metadata import IconikSourceMetadata
 
-# Bulk metadata imports (client.metadata_imports)
+# Bulk imports (client.bulk_imports)
 from cloudglue.sdk.models.metadata_import import MetadataImport
 from cloudglue.sdk.models.metadata_import_detail import MetadataImportDetail
 from cloudglue.sdk.models.metadata_import_list import MetadataImportList
