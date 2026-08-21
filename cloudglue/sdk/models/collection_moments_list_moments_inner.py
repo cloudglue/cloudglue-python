@@ -40,9 +40,9 @@ class CollectionMomentsListMomentsInner(BaseModel):
     rank_score: Union[Annotated[float, Field(le=1, strict=True, ge=0)], Annotated[int, Field(le=1, strict=True, ge=0)]] = Field(description="Normalized ordering within the run; what the default sort uses.")
     properties: Optional[Dict[str, Any]] = Field(default=None, description="Validates against the criterion's moment_schema.")
     evidence: Optional[MomentEvidence] = None
-    file_id: Optional[StrictStr] = None
-    job_id: Optional[StrictStr] = None
-    criterion_name: Optional[StrictStr] = None
+    file_id: StrictStr
+    job_id: StrictStr
+    criterion_name: StrictStr
     __properties: ClassVar[List[str]] = ["moment_id", "start_time", "end_time", "anchors", "title", "reason", "speakers", "criterion_score", "rank_score", "properties", "evidence", "file_id", "job_id", "criterion_name"]
 
     model_config = ConfigDict(

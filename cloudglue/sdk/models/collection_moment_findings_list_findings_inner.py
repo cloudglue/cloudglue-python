@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,9 +29,9 @@ class CollectionMomentFindingsListFindingsInner(BaseModel):
     finding_id: StrictStr
     kind: StrictStr
     properties: Dict[str, Any] = Field(description="Validates against the criterion's finding_schema.")
-    file_id: Optional[StrictStr] = None
-    job_id: Optional[StrictStr] = None
-    criterion_name: Optional[StrictStr] = None
+    file_id: StrictStr
+    job_id: StrictStr
+    criterion_name: StrictStr
     __properties: ClassVar[List[str]] = ["finding_id", "kind", "properties", "file_id", "job_id", "criterion_name"]
 
     @field_validator('kind')
