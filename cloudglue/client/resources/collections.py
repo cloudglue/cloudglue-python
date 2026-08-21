@@ -11,6 +11,8 @@ from cloudglue.sdk.models.default_segmentation_config import DefaultSegmentation
 from cloudglue.sdk.models.search_filter import SearchFilter
 from cloudglue.sdk.models.collection_update import CollectionUpdate
 from cloudglue.sdk.models.new_collection_face_detection_config import NewCollectionFaceDetectionConfig
+from cloudglue.sdk.models.moments_config import MomentsConfig
+from cloudglue.sdk.models.new_moment_criterion_attachment import NewMomentCriterionAttachment
 from cloudglue.sdk.rest import ApiException
 
 from cloudglue.client.resources.base import CloudglueError
@@ -37,12 +39,13 @@ class Collections:
         describe_config: Optional[Dict[str, Any]] = None,
         default_segmentation_config: Optional[Union[DefaultSegmentationConfig, SegmentationConfig, Dict[str, Any]]] = None,
         face_detection_config: Optional[Union[NewCollectionFaceDetectionConfig, Dict[str, Any]]] = None,
+        moments_config: Optional[Union[MomentsConfig, Dict[str, Any]]] = None,
     ):
         """Create a new collection.
 
         Args:
             collection_type: Type of collection ('entities', 'rich-transcripts', 'media-descriptions',
-                'face-analysis', 'metadata'). 'metadata' collections index connector source metadata
+                'face-analysis', 'metadata', 'moments'). 'metadata' collections index connector source metadata
                 and user metadata into file-level search documents WITHOUT downloading or processing
                 the media — free to index, no processing configs, supports google-drive, dropbox,
                 zoom, gong, recall, grain, and iconik URLs.
@@ -59,6 +62,10 @@ class Collections:
                 Can be a DefaultSegmentationConfig, SegmentationConfig (will be converted), or dict.
                 Note: Only 'uniform' and 'shot-detector' strategies are supported for collection defaults.
             face_detection_config: Optional configuration for face detection processing
+        moments_config: Moments collections only: the criteria to run over every
+            current and future member. Each entry becomes a criterion attachment,
+            and the attachment rows are the operational source of truth after
+            creation. Attaching charges nothing; per-file runs charge as they execute.
 
         Returns:
             The typed Collection object with all properties
@@ -92,6 +99,10 @@ class Collections:
             if isinstance(face_detection_config, dict):
                 face_detection_config = NewCollectionFaceDetectionConfig.from_dict(face_detection_config)
 
+            # Handle moments_config parameter
+            if isinstance(moments_config, dict):
+                moments_config = MomentsConfig.from_dict(moments_config)
+
             request = NewCollection(
                 collection_type=collection_type,
                 name=name,
@@ -101,6 +112,7 @@ class Collections:
                 describe_config=describe_config,
                 default_segmentation_config=default_segmentation_config,
                 face_detection_config=face_detection_config,
+                moments_config=moments_config,
             )
             # Use the standard method to get a properly typed object
             response = self.api.create_collection(new_collection=request)
@@ -827,3 +839,170 @@ class Collections:
         except Exception as e:
             raise CloudglueError(str(e))
 
+    def list_moments(
+        self,
+        collection_id: str,
+        criterion_name: Optional[str] = None,
+        attachment_id: Optional[str] = None,
+        file_id: Optional[str] = None,
+        min_score: Optional[float] = None,
+        sort: Optional[str] = None,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ):
+        """List moments across a moments collection's current members.
+
+        Removing a file from the collection drops its moments from this
+        enumeration; the underlying find-moments runs persist as job history.
+
+        Args:
+            collection_id: The ID of the moments collection.
+            criterion_name: Narrow to one criterion by name.
+            attachment_id: Narrow to one criterion attachment.
+            file_id: Narrow to one file.
+            min_score: Drop moments scoring below this value.
+            sort: 'position' (API default — file_id, then start_time),
+                'criterion_score', or 'rank_score'. The score sorts require a
+                single-criterion filter (criterion_name or attachment_id).
+            limit: Maximum number of moments to return.
+            cursor: Opaque cursor from a previous page.
+
+        Returns:
+            CollectionMomentsList object, with an exact total.
+
+        Raises:
+            CloudglueError: If there is an error listing moments.
+        """
+        try:
+            return self.api.list_collection_moments(
+                collection_id=collection_id,
+                criterion_name=criterion_name,
+                attachment_id=attachment_id,
+                file_id=file_id,
+                min_score=min_score,
+                sort=sort,
+                limit=limit,
+                cursor=cursor,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def list_moment_findings(
+        self,
+        collection_id: str,
+        criterion_name: Optional[str] = None,
+        file_id: Optional[str] = None,
+        kind: Optional[str] = None,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ):
+        """List findings across a moments collection's current members.
+
+        Findings are the non-temporal counterpart to moments, emitted
+        whenever a criterion declares a finding_schema.
+
+        Args:
+            collection_id: The ID of the moments collection.
+            criterion_name: Narrow to one criterion by name.
+            file_id: Narrow to one file.
+            kind: 'absence' or 'observation'.
+            limit: Maximum number of findings to return.
+            cursor: Opaque cursor from a previous page.
+
+        Returns:
+            CollectionMomentFindingsList object.
+
+        Raises:
+            CloudglueError: If there is an error listing findings.
+        """
+        try:
+            return self.api.list_collection_moment_findings(
+                collection_id=collection_id,
+                criterion_name=criterion_name,
+                file_id=file_id,
+                kind=kind,
+                limit=limit,
+                cursor=cursor,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def create_moment_criterion(
+        self,
+        collection_id: str,
+        criterion: Union[Dict[str, Any], Any],
+        signals_required: Optional[list] = None,
+        boundary_policy: Optional[str] = None,
+        speaker_filter: Optional[Dict[str, Any]] = None,
+        min_duration_seconds: Optional[float] = None,
+        max_duration_seconds: Optional[float] = None,
+    ):
+        """Attach a criterion to a moments collection and backfill members.
+
+        The attach response charges nothing (cost header 0); per-file runs
+        charge as they execute, and a matching prior run satisfies a pair at
+        no extra execution. Track progress with the attachment's
+        backfill_status and files_total / files_completed / files_failed.
+
+        Args:
+            collection_id: The ID of the moments collection.
+            criterion: The inline rubric (MomentCriterion or dict).
+            signals_required: Signals the criterion needs from the describe.
+            boundary_policy: 'sentence', 'tight', or 'loose'.
+            speaker_filter: Restrict discovery to particular speakers.
+            min_duration_seconds: Drop moments shorter than this.
+            max_duration_seconds: Drop moments longer than this.
+
+        Returns:
+            MomentCriterionAttachment object.
+
+        Raises:
+            CloudglueError: If there is an error attaching the criterion.
+        """
+        try:
+            request = NewMomentCriterionAttachment(
+                criterion=criterion,
+                signals_required=signals_required,
+                boundary_policy=boundary_policy,
+                speaker_filter=speaker_filter,
+                min_duration_seconds=min_duration_seconds,
+                max_duration_seconds=max_duration_seconds,
+            )
+            return self.api.create_collection_moment_criterion(
+                collection_id=collection_id,
+                new_moment_criterion_attachment=request,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))
+
+    def delete_moment_criterion(self, collection_id: str, attachment_id: str):
+        """Detach a criterion from a moments collection.
+
+        Its moments and findings leave collection enumeration; the underlying
+        runs persist as job history.
+
+        Args:
+            collection_id: The ID of the moments collection.
+            attachment_id: The ID of the criterion attachment.
+
+        Returns:
+            Deletion confirmation.
+
+        Raises:
+            CloudglueError: If there is an error detaching the criterion.
+        """
+        try:
+            return self.api.delete_collection_moment_criterion(
+                collection_id=collection_id,
+                attachment_id=attachment_id,
+            )
+        except ApiException as e:
+            raise CloudglueError(str(e), e.status, e.data, e.headers, e.reason)
+        except Exception as e:
+            raise CloudglueError(str(e))

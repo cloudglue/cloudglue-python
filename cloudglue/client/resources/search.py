@@ -203,13 +203,15 @@ class Search:
         sort_by: Optional[str] = None,
         search_modalities: Optional[List[str]] = None,
         label_filters: Optional[List[str]] = None,
+        criterion_name: Optional[str] = None,
         **kwargs,
     ):
         """Search across video files and segments to find relevant content.
 
         Args:
             scope: Search scope - 'file' searches at file level (requires collections with enable_summary=true), 
-                   'segment' searches at segment level, 'face' searches for faces in videos using image matching
+                   'segment' searches at segment level, 'face' searches for faces in videos using image matching,
+                   'moment' searches moments produced by find-moments criteria in moments collections
             collections: List of collection IDs to search within. 
                         For text search (scope='file' or 'segment'): Must be collections of
                         type 'rich-transcripts', 'media-descriptions', 'metadata', or
@@ -241,6 +243,7 @@ class Search:
             label_filters: Optional list of label strings to filter eligible search items by presence of 
                           one or more labels. Only supported for 'tag_semantic' and 'tag_lexical' search 
                           modalities. If not specified, all tags will be considered.
+            criterion_name: Narrow moment search to one criterion by name (scope='moment' only)
             **kwargs: Additional parameters for the request.
 
         Returns:
@@ -344,6 +347,7 @@ class Search:
                 sort_by=sort_by,
                 search_modalities=search_modalities,
                 label_filters=label_filters,
+                criterion_name=criterion_name,
                 **kwargs,
             )
             return self.api.search_content(search_request=request)

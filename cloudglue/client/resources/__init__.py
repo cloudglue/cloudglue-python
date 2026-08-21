@@ -23,10 +23,12 @@ from cloudglue.client.resources.data_connectors import DataConnectors
 from cloudglue.client.resources.deep_search import DeepSearch
 from cloudglue.client.resources.query import Query
 from cloudglue.client.resources.bulk_imports import BulkImports, MetadataImports
+from cloudglue.client.resources.find_moments import FindMoments
 
 __all__ = [
     "Query",
     "BulkImports",
+    "FindMoments",
     "MetadataImports",
     "CloudglueError",
     "Chat",
