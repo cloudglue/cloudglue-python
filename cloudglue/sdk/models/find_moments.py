@@ -42,8 +42,8 @@ class FindMoments(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['pending', 'processing', 'completed', 'failed']):
-            raise ValueError("must be one of enum values ('pending', 'processing', 'completed', 'failed')")
+        if value not in set(['pending', 'processing', 'completed', 'failed', 'cancelled']):
+            raise ValueError("must be one of enum values ('pending', 'processing', 'completed', 'failed', 'cancelled')")
         return value
 
     model_config = ConfigDict(

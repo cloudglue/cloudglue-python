@@ -102,7 +102,8 @@ class FindMoments:
         Args:
             limit: Maximum number of runs to return.
             cursor: Opaque cursor from a previous page.
-            status: 'pending', 'processing', 'completed', or 'failed'.
+            status: 'pending', 'processing', 'completed', 'failed', or
+                'cancelled' (deleting an in-flight run cancels it).
             created_before: Upper bound on creation time.
             created_after: Lower bound on creation time.
             url: Only runs for this source url.
@@ -196,28 +197,36 @@ class FindMoments:
     ):
         """Poll a run until it reaches a terminal state.
 
+        Polls :meth:`get` until the run is completed, failed, or cancelled,
+        and returns the final FindMoments either way — a failed run is
+        returned with its ``error`` message intact so callers can inspect why
+        it failed, matching the other wait helpers in this client.
+
+        The attempt cap defaults to 60 rather than the client-wide 36:
+        moment discovery reads the whole video and routinely runs past three
+        minutes.
+
         Args:
             job_id: The ID of the run.
-            limit: Read-time limit applied to the final fetch.
-            min_score: Read-time score floor applied to the final fetch.
-            sort: Read-time sort applied to the final fetch.
+            limit: Read-time limit applied to each fetch.
+            min_score: Read-time score floor applied to each fetch.
+            sort: Read-time sort applied to each fetch.
             polling_interval: Seconds between polls.
             max_attempts: Maximum number of polls before giving up.
 
         Returns:
-            The completed FindMoments object.
+            The final FindMoments object (status 'completed', 'failed', or
+            'cancelled'; on failure, ``error`` carries the details).
 
         Raises:
-            CloudglueError: If the run fails or the timeout is reached.
+            CloudglueError: If polling itself errors or the timeout is
+                reached.
         """
         attempts = 0
         while attempts < max_attempts:
             run = self.get(job_id, limit=limit, min_score=min_score, sort=sort)
-            if run.status == "completed":
+            if run.status in ("completed", "failed", "cancelled"):
                 return run
-            if run.status == "failed":
-                detail = f" — {run.error}" if getattr(run, "error", None) else ""
-                raise CloudglueError(f"Find-moments run failed: {job_id}{detail}")
             time.sleep(polling_interval)
             attempts += 1
 
