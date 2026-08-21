@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from cloudglue.sdk.models.find_moments_find_moments_config import FindMomentsFindMomentsConfig
 from cloudglue.sdk.models.moment import Moment
 from cloudglue.sdk.models.moment_finding import MomentFinding
 from typing import Optional, Set
@@ -32,7 +33,7 @@ class FindMoments(BaseModel):
     status: StrictStr
     created_at: StrictInt = Field(description="Unix timestamp in milliseconds when the run was created")
     url: StrictStr
-    find_moments_config: Optional[Dict[str, Any]] = Field(default=None, description="Echo of the request plus criterion_hash and the resolved describe_job_id.")
+    find_moments_config: Optional[FindMomentsFindMomentsConfig] = None
     moments: Optional[List[Moment]] = None
     findings: Optional[List[MomentFinding]] = None
     total_moments: Optional[StrictInt] = Field(default=None, description="Full accepted count, independent of the limit read parameter.")
@@ -85,6 +86,9 @@ class FindMoments(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of find_moments_config
+        if self.find_moments_config:
+            _dict['find_moments_config'] = self.find_moments_config.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in moments (list)
         _items = []
         if self.moments:
@@ -115,7 +119,7 @@ class FindMoments(BaseModel):
             "status": obj.get("status"),
             "created_at": obj.get("created_at"),
             "url": obj.get("url"),
-            "find_moments_config": obj.get("find_moments_config"),
+            "find_moments_config": FindMomentsFindMomentsConfig.from_dict(obj["find_moments_config"]) if obj.get("find_moments_config") is not None else None,
             "moments": [Moment.from_dict(_item) for _item in obj["moments"]] if obj.get("moments") is not None else None,
             "findings": [MomentFinding.from_dict(_item) for _item in obj["findings"]] if obj.get("findings") is not None else None,
             "total_moments": obj.get("total_moments"),

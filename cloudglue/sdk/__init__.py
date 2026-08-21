@@ -194,6 +194,7 @@ from cloudglue.sdk.models.file_segmentation_config import FileSegmentationConfig
 from cloudglue.sdk.models.file_update import FileUpdate
 from cloudglue.sdk.models.file_video_info import FileVideoInfo
 from cloudglue.sdk.models.find_moments import FindMoments
+from cloudglue.sdk.models.find_moments_find_moments_config import FindMomentsFindMomentsConfig
 from cloudglue.sdk.models.find_moments_list import FindMomentsList
 from cloudglue.sdk.models.frame_extraction import FrameExtraction
 from cloudglue.sdk.models.frame_extraction_config import FrameExtractionConfig
@@ -238,6 +239,7 @@ from cloudglue.sdk.models.moment import Moment
 from cloudglue.sdk.models.moment_criterion import MomentCriterion
 from cloudglue.sdk.models.moment_criterion_anchors_value import MomentCriterionAnchorsValue
 from cloudglue.sdk.models.moment_criterion_attachment import MomentCriterionAttachment
+from cloudglue.sdk.models.moment_criterion_attachment_options import MomentCriterionAttachmentOptions
 from cloudglue.sdk.models.moment_criterion_scoring import MomentCriterionScoring
 from cloudglue.sdk.models.moment_evidence import MomentEvidence
 from cloudglue.sdk.models.moment_finding import MomentFinding

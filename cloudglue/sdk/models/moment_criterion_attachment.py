@@ -19,6 +19,8 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from cloudglue.sdk.models.moment_criterion import MomentCriterion
+from cloudglue.sdk.models.moment_criterion_attachment_options import MomentCriterionAttachmentOptions
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,8 +31,8 @@ class MomentCriterionAttachment(BaseModel):
     attachment_id: StrictStr
     criterion_name: StrictStr
     criterion_hash: StrictStr
-    criterion: Optional[Dict[str, Any]] = None
-    options: Optional[Dict[str, Any]] = None
+    criterion: Optional[MomentCriterion] = None
+    options: Optional[MomentCriterionAttachmentOptions] = None
     backfill_status: StrictStr
     files_total: Optional[StrictInt] = None
     files_completed: Optional[StrictInt] = None
@@ -84,6 +86,12 @@ class MomentCriterionAttachment(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of criterion
+        if self.criterion:
+            _dict['criterion'] = self.criterion.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of options
+        if self.options:
+            _dict['options'] = self.options.to_dict()
         return _dict
 
     @classmethod
@@ -99,8 +107,8 @@ class MomentCriterionAttachment(BaseModel):
             "attachment_id": obj.get("attachment_id"),
             "criterion_name": obj.get("criterion_name"),
             "criterion_hash": obj.get("criterion_hash"),
-            "criterion": obj.get("criterion"),
-            "options": obj.get("options"),
+            "criterion": MomentCriterion.from_dict(obj["criterion"]) if obj.get("criterion") is not None else None,
+            "options": MomentCriterionAttachmentOptions.from_dict(obj["options"]) if obj.get("options") is not None else None,
             "backfill_status": obj.get("backfill_status"),
             "files_total": obj.get("files_total"),
             "files_completed": obj.get("files_completed"),

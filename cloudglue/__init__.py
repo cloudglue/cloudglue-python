@@ -49,6 +49,8 @@ from cloudglue.sdk.models.criterion_score import CriterionScore
 from cloudglue.sdk.models.moment_search_result import MomentSearchResult
 from cloudglue.sdk.models.collection_moments_list import CollectionMomentsList
 from cloudglue.sdk.models.collection_moment_findings_list import CollectionMomentFindingsList
+from cloudglue.sdk.models.find_moments_find_moments_config import FindMomentsFindMomentsConfig
+from cloudglue.sdk.models.moment_criterion_attachment_options import MomentCriterionAttachmentOptions
 
 # Export key classes at the module level for clean imports
 __all__ = [
@@ -89,4 +91,6 @@ __all__ = [
     "MomentSearchResult",
     "CollectionMomentsList",
     "CollectionMomentFindingsList",
+    "FindMomentsFindMomentsConfig",
+    "MomentCriterionAttachmentOptions",
 ]
