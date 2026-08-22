@@ -24,6 +24,7 @@ from cloudglue.sdk.api.data_connectors_api import DataConnectorsApi
 from cloudglue.sdk.api.deep_search_api import DeepSearchApi
 from cloudglue.sdk.api.query_api import QueryApi
 from cloudglue.sdk.api.bulk_imports_api import BulkImportsApi
+from cloudglue.sdk.api.find_moments_api import FindMomentsApi
 from cloudglue.sdk.configuration import Configuration
 from cloudglue.sdk.api_client import ApiClient
 
@@ -50,6 +51,7 @@ from cloudglue.client.resources import (
     DeepSearch,
     Query,
     BulkImports,
+    FindMoments,
 )
 from cloudglue._version import __version__
 
@@ -105,6 +107,7 @@ class Cloudglue:
         self.deep_search_api = DeepSearchApi(self.api_client)
         self.query_api = QueryApi(self.api_client)
         self.bulk_imports_api = BulkImportsApi(self.api_client)
+        self.find_moments_api = FindMomentsApi(self.api_client)
 
         # Set up resources with their respective API clients
         self.chat = Chat(self.chat_api)
@@ -131,6 +134,7 @@ class Cloudglue:
         # Deprecated alias: renamed to bulk_imports in spec v0.7.21, when
         # bulk imports grew beyond metadata collections.
         self.metadata_imports = self.bulk_imports
+        self.find_moments = FindMoments(self.find_moments_api)
 
     def close(self):
         """Close the API client."""

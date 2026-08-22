@@ -35,6 +35,23 @@ from cloudglue.sdk.models.metadata_import_run import MetadataImportRun
 from cloudglue.sdk.models.metadata_import_run_progress import MetadataImportRunProgress
 from cloudglue.sdk.models.metadata_import_filter_set import MetadataImportFilterSet
 
+# Find Moments (client.find_moments) and moments collections
+from cloudglue.sdk.models.find_moments import FindMoments as FindMomentsJob
+from cloudglue.sdk.models.find_moments_list import FindMomentsList
+from cloudglue.sdk.models.new_find_moments import NewFindMoments
+from cloudglue.sdk.models.moment import Moment
+from cloudglue.sdk.models.moment_finding import MomentFinding
+from cloudglue.sdk.models.moment_criterion import MomentCriterion
+from cloudglue.sdk.models.moment_criterion_attachment import MomentCriterionAttachment
+from cloudglue.sdk.models.new_moment_criterion_attachment import NewMomentCriterionAttachment
+from cloudglue.sdk.models.moments_config import MomentsConfig
+from cloudglue.sdk.models.criterion_score import CriterionScore
+from cloudglue.sdk.models.moment_search_result import MomentSearchResult
+from cloudglue.sdk.models.collection_moments_list import CollectionMomentsList
+from cloudglue.sdk.models.collection_moment_findings_list import CollectionMomentFindingsList
+from cloudglue.sdk.models.find_moments_find_moments_config import FindMomentsFindMomentsConfig
+from cloudglue.sdk.models.moment_criterion_attachment_options import MomentCriterionAttachmentOptions
+
 # Export key classes at the module level for clean imports
 __all__ = [
     "Cloudglue",
@@ -61,4 +78,19 @@ __all__ = [
     "MetadataImportRun",
     "MetadataImportRunProgress",
     "MetadataImportFilterSet",
+    "FindMomentsJob",
+    "FindMomentsList",
+    "NewFindMoments",
+    "Moment",
+    "MomentFinding",
+    "MomentCriterion",
+    "MomentCriterionAttachment",
+    "NewMomentCriterionAttachment",
+    "MomentsConfig",
+    "CriterionScore",
+    "MomentSearchResult",
+    "CollectionMomentsList",
+    "CollectionMomentFindingsList",
+    "FindMomentsFindMomentsConfig",
+    "MomentCriterionAttachmentOptions",
 ]
