@@ -52,6 +52,11 @@ from cloudglue.sdk.models.collection_moment_findings_list import CollectionMomen
 from cloudglue.sdk.models.find_moments_find_moments_config import FindMomentsFindMomentsConfig
 from cloudglue.sdk.models.moment_criterion_attachment_options import MomentCriterionAttachmentOptions
 
+# Sites (client.sites): per-route unfurl previews
+from cloudglue.sdk.models.site_route_preview import SiteRoutePreview
+from cloudglue.sdk.models.site_route_preview_input import SiteRoutePreviewInput
+from cloudglue.sdk.models.site_route_preview_list import SiteRoutePreviewList
+
 # Export key classes at the module level for clean imports
 __all__ = [
     "Cloudglue",
@@ -93,4 +98,7 @@ __all__ = [
     "CollectionMomentFindingsList",
     "FindMomentsFindMomentsConfig",
     "MomentCriterionAttachmentOptions",
+    "SiteRoutePreview",
+    "SiteRoutePreviewInput",
+    "SiteRoutePreviewList",
 ]
