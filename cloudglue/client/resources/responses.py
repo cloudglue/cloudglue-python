@@ -132,12 +132,18 @@ class Responses:
         """Create a new response.
 
         Exactly one of `collections`, `files`, or `use_default_index=True` must be provided
-        to specify the knowledge base source.
+        to specify the knowledge base source — or, for
+        `knowledge_base_type='entity_backed_knowledge'`, all three may be omitted when
+        `entity_backed_knowledge_config` carries at least one entity collection: an
+        entity/moments-only knowledge base answers from structured entity data (and
+        moment search for moments collections) with no transcript corpus.
 
         Args:
             input: The input for the response. Can be a simple string (treated as user message)
                 or a list of message dicts with 'role' and 'content' keys.
-            collections: List of collection IDs to search for relevant context.
+            collections: List of collection IDs to search for relevant context. Optional
+                when knowledge_base_type is 'entity_backed_knowledge' with at least one
+                entity collection — omit it for an entity/moments-only knowledge base.
             files: List of file references to search (file UUIDs, cloudglue URIs, or URLs).
             use_default_index: When True, search all default-indexed files for the account.
             model: The model to use for the response (default: 'nimbus-001').
@@ -164,13 +170,27 @@ class Responses:
         """
         try:
             sources = sum([bool(collections), bool(files), use_default_index])
-            if sources != 1:
+            entity_collections = (
+                entity_backed_knowledge_config.get("entity_collections")
+                if isinstance(entity_backed_knowledge_config, dict)
+                else getattr(entity_backed_knowledge_config, "entity_collections", None)
+            )
+            entity_only = (
+                sources == 0
+                and knowledge_base_type == "entity_backed_knowledge"
+                and bool(entity_collections)
+            )
+            if sources != 1 and not entity_only:
                 raise ValueError(
-                    "Exactly one of 'collections', 'files', or 'use_default_index=True' must be provided"
+                    "Exactly one of 'collections', 'files', or 'use_default_index=True' must be"
+                    " provided — or, for knowledge_base_type='entity_backed_knowledge', at least"
+                    " one entity collection in entity_backed_knowledge_config with all three omitted"
                 )
 
-            if collections:
-                kb_kwargs = {"collections": collections}
+            if collections or entity_only:
+                kb_kwargs = {}
+                if collections:
+                    kb_kwargs["collections"] = collections
                 if knowledge_base_type is not None:
                     kb_kwargs["type"] = knowledge_base_type
                 if filter is not None:
