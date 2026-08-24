@@ -69,7 +69,8 @@ class Sites:
         Args:
             site_id: The ID of the site.
             previews: The complete set of previews, as
-                SiteRoutePreviewInput objects or plain dicts.
+                SiteRoutePreviewInput objects or plain dicts (dict keys may
+                be the wire camelCase names or pythonic snake_case).
 
         Returns:
             SiteRoutePreviewList with the stored previews (canonical routes).
@@ -80,8 +81,10 @@ class Sites:
                 an invalid clip window) or the site is not found.
         """
         try:
+            # model_validate (not from_dict) so plain dicts may use either the
+            # wire camelCase keys or pythonic snake_case field names.
             normalized = [
-                SiteRoutePreviewInput.from_dict(p) if isinstance(p, dict) else p
+                SiteRoutePreviewInput.model_validate(p) if isinstance(p, dict) else p
                 for p in previews
             ]
             request = ReplaceSiteRoutePreviewsRequest(previews=normalized)
