@@ -34,6 +34,7 @@ class Describe:
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
         participants: Optional[List[Union[Dict[str, Any], NewDescribeAllOfParticipants]]] = None,
+        prompt: Optional[str] = None,
     ):
         """Create a new media description job for a video, audio, or image.
 
@@ -56,6 +57,13 @@ class Describe:
                 "Speaker N"), never an invented name. Intended for uploaded files, which (unlike
                 data-connector files such as Grain) carry no participant metadata; for connector files
                 this is populated automatically and need not be supplied.
+            prompt: Optional free-form guidance for the description (max 2000 chars):
+                domain terms and their spellings, what to pay attention to, output style.
+                Steers emphasis and vocabulary across the visual, scene-text, speech, and
+                summary passes; it cannot make the description report content that isn't in
+                the media, and it never changes the response shape. To constrain transcript
+                speaker labels use ``participants`` — a prompt is context, not a constraint.
+                Changing it produces a new describe job rather than reusing a cached one.
 
         Returns:
             The typed Describe job object with job_id and status.
@@ -100,6 +108,7 @@ class Describe:
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config_obj,
                 participants=participants_obj,
+                prompt=prompt,
             )
 
             # Use the regular SDK method to create the job
@@ -287,6 +296,7 @@ class Describe:
         segmentation_config: Optional[Union[SegmentationConfig, Dict[str, Any]]] = None,
         thumbnails_config: Optional[Union[Dict[str, Any], Any]] = None,
         participants: Optional[List[Union[Dict[str, Any], NewDescribeAllOfParticipants]]] = None,
+        prompt: Optional[str] = None,
         response_format: Optional[str] = None,
         modalities: Optional[List[str]] = None,
         include_thumbnails: Optional[bool] = None,
@@ -314,6 +324,7 @@ class Describe:
             thumbnails_config: Optional configuration for segment thumbnails
             participants: Known participants on the recording (each ``{"name": str, "scope": str}``); when
                 provided, speaker naming is constrained to these people. Useful for uploaded files.
+            prompt: Optional free-form guidance for the description (max 2000 chars); see :meth:`create`.
             response_format: The format of the response. One of 'json', 'markdown', 'speech_srt',
                 'speech_vtt', 'speech_markdown', or 'speech_text'. Use speech_srt or speech_vtt for
                 subtitle formats, speech_markdown for a diarized transcript, or speech_text for plain
@@ -343,6 +354,7 @@ class Describe:
                 segmentation_config=segmentation_config,
                 thumbnails_config=thumbnails_config,
                 participants=participants,
+                prompt=prompt,
             )
 
             job_id = job.job_id
