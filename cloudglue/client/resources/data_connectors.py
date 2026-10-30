@@ -192,8 +192,10 @@ class DataConnectors:
         Raises:
             CloudglueError: If there is an error syncing the file (e.g. 400
                 for folder links or type mismatches, 403 for inaccessible
-                share links, 404 if not found at the source, 429 if the
-                external service rate-limited the request).
+                share links or a reached usage limit (``data`` carries
+                ``code: usage_limit_reached``), 404 if not found at the
+                source, 429 if the external service rate-limited the
+                request).
         """
         try:
             request = SyncDataConnectorFileRequest(url=url)
